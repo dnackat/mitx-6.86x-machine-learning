@@ -11,12 +11,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Data points
-#x = np.array([[-1,-1],[1,0],[-1,10]])
-x = np.array([[1,0],[-1,10],[-1,-1]])
+x = np.array([[-1,-1],[1,0],[-1,10]])
+#x = np.array([[1,0],[-1,10],[-1,-1]])
 
 # Labels
-#y = np.array([[1],[-1],[1]])
-y = np.array([[-1],[1],[1]])
+y = np.array([[1],[-1],[1]])
+#y = np.array([[-1],[1],[1]])
 
 # Number of examples
 n = x.shape[0]
@@ -44,6 +44,7 @@ for t in range(T):
     
     # If all examples classified correctly, stop
     if counter == n:
+        print("No. of iteration loops through the dataset:", t+1)
         break
     
 # Print total number of mistakes
