@@ -8,6 +8,7 @@ Created on Wed Jun 19 12:59:45 2019
 Perceptron algorithm with offset
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Data points
 x = np.array([[-4,2],[-2,1],[-1,-1],[2,2],[1,-2]])
@@ -16,6 +17,10 @@ x = np.array([[-4,2],[-2,1],[-1,-1],[2,2],[1,-2]])
 # Labels
 y = np.array([[1],[1],[-1],[-1],[-1]])
 #y = np.array([[-1],[1],[1]])
+
+# Plot data
+plt.plot(x[:2,0], x[:2,1], color='red', marker='+', markersize=15, ls = '')
+plt.plot(x[2:,0], x[2:,1], color='blue', marker='o', markersize=8, ls = '')
 
 # Number of examples
 n = x.shape[0]

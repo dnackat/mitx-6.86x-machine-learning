@@ -8,6 +8,7 @@ Created on Tue Jun 18 20:57:13 2019
 Perceptron algorithm without offset (hyperplane through origin)
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Data points
 x = np.array([[-1,-1],[1,0],[-1,10]])
@@ -16,6 +17,10 @@ x = np.array([[-1,-1],[1,0],[-1,10]])
 # Labels
 y = np.array([[1],[-1],[1]])
 #y = np.array([[-1],[1],[1]])
+
+# Plot data
+plt.plot(x[::2,0], x[::2,1], color='red', marker='+', markersize=15, ls = '')
+plt.plot(x[1,0], x[1,1], color='blue', marker='o', markersize=8, ls = '')
 
 # Number of examples
 n = x.shape[0]
