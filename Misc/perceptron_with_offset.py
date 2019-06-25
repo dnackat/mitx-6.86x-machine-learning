@@ -19,6 +19,7 @@ y = np.array([[1],[1],[-1],[-1],[-1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
+plt.figure()
 plt.plot(x[:2,0], x[:2,1], color='red', marker='+', markersize=15, ls = '')
 plt.plot(x[2:,0], x[2:,1], color='blue', marker='o', markersize=8, ls = '')
 
@@ -41,7 +42,7 @@ for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
         if float(y[i]*(theta.T.dot(x[i,:]) + theta0)) <= 0:
-            theta += y[i]*x[i,:].reshape((m,1))
+            theta = theta + y[i]*x[i,:].reshape((m,1))
             theta0 += float(y[i])
             print("current parameter vector:", theta)
             print("current offset: {:.1f}".format(theta0))
@@ -56,3 +57,8 @@ for t in range(T):
     
 # Print total number of mistakes
 print("Total number of misclassifications:", mistakes)
+
+# Plot the decision boundary
+x_line = np.linspace(-5,5,100)
+y_line = (-theta0 - theta[0]*x_line)/theta[1]
+plt.plot(x_line, y_line, 'k-', linewidth = 2)
