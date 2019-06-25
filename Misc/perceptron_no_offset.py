@@ -11,16 +11,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Data points
-x = np.array([[-1,-1],[1,0],[-1,10]])
+x = np.array([[np.cos(np.pi),0],[0,np.cos(2*np.pi)]])
 #x = np.array([[1,0],[-1,10],[-1,-1]])
 
 # Labels
-y = np.array([[1],[-1],[1]])
+y = np.array([[1],[1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
-plt.plot(x[::2,0], x[::2,1], color='red', marker='+', markersize=15, ls = '')
-plt.plot(x[1,0], x[1,1], color='blue', marker='o', markersize=8, ls = '')
+#plt.plot(x[::2,0], x[::2,1], color='red', marker='+', markersize=15, ls = '')
+#plt.plot(x[1,0], x[1,1], color='blue', marker='o', markersize=8, ls = '')
 
 # Number of examples
 n = x.shape[0]
@@ -40,7 +40,7 @@ for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
         if float(y[i]*(theta.T.dot(x[i,:]))) <= 0:
-            theta += y[i]*x[i,:].reshape((m,1))
+            theta = theta + y[i]*x[i,:].reshape((m,1))
             print("current parameter vector:", theta)
             mistakes += 1
         else:
