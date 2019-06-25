@@ -19,7 +19,8 @@ y = np.array([[1],[1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
-#plt.plot(x[::2,0], x[::2,1], color='red', marker='+', markersize=15, ls = '')
+plt.figure()
+plt.plot(x[:,0], x[:,1], color='red', marker='+', markersize=15, ls = '')
 #plt.plot(x[1,0], x[1,1], color='blue', marker='o', markersize=8, ls = '')
 
 # Number of examples
@@ -53,3 +54,8 @@ for t in range(T):
     
 # Print total number of mistakes
 print("Total number of misclassifications:", mistakes)
+
+# Plot decision boundary
+x_line = np.linspace(-5,5,100)
+y_line = (- theta[0]*x_line)/theta[1]
+plt.plot(x_line, y_line, 'k-', linewidth = 2)
