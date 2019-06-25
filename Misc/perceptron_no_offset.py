@@ -9,31 +9,34 @@ Perceptron algorithm without offset (hyperplane through origin)
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Data points
-x = np.array([[np.cos(np.pi),0],[0,np.cos(2*np.pi)]])
+x = np.array([[np.cos(np.pi),0,0],[0,np.cos(2*np.pi),0],[0,0,np.cos(3*np.pi)]])
+#x = np.array([[0,np.cos(2*np.pi)],[np.cos(np.pi),0]])
 #x = np.array([[1,0],[-1,10],[-1,-1]])
 
 # Labels
-y = np.array([[1],[1]])
+y = np.array([[1],[1],[1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
-plt.figure()
-plt.plot(x[:,0], x[:,1], color='red', marker='+', markersize=15, ls = '')
+fig = plt.figure()
+ax = Axes3D(fig)
+ax.plot(x[:,0], x[:,1], x[:,2], color='red', marker='+', markersize=15, ls = '')
+ax.hold(True)
 #plt.plot(x[1,0], x[1,1], color='blue', marker='o', markersize=8, ls = '')
 
 # Number of examples
 n = x.shape[0]
 
-# Number of features
 m = x.shape[1]
 
 # No. of iterations
 T = 10
 
 # Initialize parameter vector
-theta = np.array([[0],[0]])
+theta = np.zeros((m,1))
 
 # Start the perceptron update loop
 mistakes = 0    # Keep track of mistakes
@@ -56,6 +59,6 @@ for t in range(T):
 print("Total number of misclassifications:", mistakes)
 
 # Plot decision boundary
-x_line = np.linspace(-5,5,100)
-y_line = (- theta[0]*x_line)/theta[1]
-plt.plot(x_line, y_line, 'k-', linewidth = 2)
+xx, yy = np.meshgrid(np.linspace(-2,2,100), np.linspace(-2,2,100))
+z_line = (- theta[0]*xx - theta[1]*yy)/theta[2]
+ax.plot_surface(xx, yy, z_line, alpha = 0.2)
