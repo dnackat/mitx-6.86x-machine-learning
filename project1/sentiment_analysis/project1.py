@@ -226,8 +226,15 @@ def pegasos_single_step_update(
     real valued number with the value of theta_0 after the current updated has
     completed.
     """
-    # Your code here
-    raise NotImplementedError
+    agreement = float(label*(current_theta.dot(feature_vector) + current_theta_0))
+    
+    if agreement <= 1.0:
+        current_theta = (1-eta*L)*current_theta + eta*label*feature_vector
+        current_theta_0 = current_theta_0 + eta*label
+    else:
+        current_theta = (1-eta*L)*current_theta
+        
+    return (current_theta, current_theta_0)
 #pragma: coderesponse end
 
 
@@ -261,8 +268,24 @@ def pegasos(feature_matrix, labels, T, L):
     number with the value of the theta_0, the offset classification
     parameter, found after T iterations through the feature matrix.
     """
-    # Your code here
-    raise NotImplementedError
+    # Counter
+    c = 1
+    
+    # Initialize theta and theta0
+    current_theta = np.zeros(feature_matrix.shape[1])
+    current_theta_0 = 0.0
+    
+    for t in range(T):
+        for i in get_order(feature_matrix.shape[0]):
+            eta_t = 1/np.sqrt(c)  # Update eta every iteration
+            c += 1 # Update counter
+            
+            # Run pegasos algorithm to get theta and theta0
+            current_theta, current_theta_0 = pegasos_single_step_update(feature_matrix[i,:], \
+             labels[i], L, eta_t, current_theta, current_theta_0)
+            
+    return (current_theta, current_theta_0)
+            
 #pragma: coderesponse end
 
 # Part II
