@@ -46,7 +46,7 @@ for t in range(T):
     for i in range(n):
         if abs(float(y[i]*(theta.T.dot(x[i,:]) + theta0))) < eps:
             theta = theta + y[i]*x[i,:].reshape((m,1))
-            theta0 = theta0 + float(y[i])
+            theta0 = theta0 + y[i]
             print("current parameter vector:", theta)
             print("current offset: {:.1f}".format(theta0))
             mistakes += 1
