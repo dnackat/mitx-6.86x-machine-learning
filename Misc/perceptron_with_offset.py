@@ -36,12 +36,15 @@ T = 10
 theta = np.array([[0],[0]])
 theta0 = 0
 
+# Tolerance for floating point errors
+eps = 1e-4
+
 # Start the perceptron update loop
 mistakes = 0    # Keep track of mistakes
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
-        if float(y[i]*(theta.T.dot(x[i,:]) + theta0)) <= 0:
+        if abs(float(y[i]*(theta.T.dot(x[i,:]) + theta0))) < eps:
             theta = theta + y[i]*x[i,:].reshape((m,1))
             theta0 += float(y[i])
             print("current parameter vector:", theta)
