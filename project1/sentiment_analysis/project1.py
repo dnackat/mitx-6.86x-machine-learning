@@ -363,8 +363,8 @@ def classifier_accuracy(
     pred_val = classify(val_feature_matrix, theta, theta_0)
     
     # Calculate classification accuracy by comparing predictions with labels
-    train_accuracy = (pred_train == train_labels).mean()
-    val_accuracy = (pred_val == val_labels).mean()
+    train_accuracy = accuracy(pred_train, train_labels)
+    val_accuracy = accuracy(pred_val, val_labels)
     
     return (train_accuracy, val_accuracy)
     
