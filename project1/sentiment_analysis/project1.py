@@ -92,7 +92,7 @@ def perceptron_single_step_update(
     """
     
     # Tolerance for floating point errors
-    eps = 1e-4
+    eps = 1e-8
     
     agreement = float(label*(current_theta.dot(feature_vector) + current_theta_0))
     
