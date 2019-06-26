@@ -37,7 +37,7 @@ theta = np.array([[0],[0]])
 theta0 = 0.0
 
 # Tolerance for floating point errors
-eps = 1e-5
+eps = 1e-8
 
 # Start the perceptron update loop
 mistakes = 0    # Keep track of mistakes
