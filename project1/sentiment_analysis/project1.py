@@ -174,8 +174,28 @@ def average_perceptron(feature_matrix, labels, T):
     Hint: It is difficult to keep a running average; however, it is simple to
     find a sum and divide.
     """
-    # Your code here
-    raise NotImplementedError
+    current_theta = np.zeros(feature_matrix.shape[1])
+    current_theta_0 = 0.0
+    
+    # Keep track of the sum through the loops
+    theta_sum = np.zeros(feature_matrix.shape[1])
+    theta_0_sum = 0.0
+    
+    n = feature_matrix.shape[0]     # No of examples
+    
+    for t in range(T):
+        for i in get_order(feature_matrix.shape[0]):
+            current_theta, current_theta_0 = \
+            perceptron_single_step_update(feature_matrix[i,:], labels[i], \
+                                          current_theta, current_theta_0)
+            
+            theta_sum = theta_sum + current_theta
+            theta_0_sum = theta_0_sum + current_theta_0
+            
+    theta_avg = (1/(n*T))*theta_sum
+    theta_0_avg = (1/(n*T))*theta_0_sum
+    
+    return (theta_avg, theta_0_avg)
 #pragma: coderesponse end
 
 
