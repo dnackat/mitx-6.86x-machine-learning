@@ -309,9 +309,13 @@ def classify(feature_matrix, theta, theta_0):
     given theta and theta_0. If a prediction is GREATER THAN zero, it should
     be considered a positive classification.
     """
+    # Tolerance
+    eps = 1e-8
+    
     predictions = theta.dot(feature_matrix.T) + theta_0
     predictions[predictions > 0.0] = 1
-    predictions[predictions <= 0.0] = -1
+    predictions[predictions < 0.0] = -1
+    predictions[abs(predictions) < eps] = -1
     
     return predictions
     
@@ -351,8 +355,19 @@ def classifier_accuracy(
     trained classifier on the training data and the second element is the
     accuracy of the trained classifier on the validation data.
     """
-    # Your code here
-    raise NotImplementedError
+    # Train the algorithm to get theta, theta0
+    theta, theta_0 = classifier(train_feature_matrix, train_labels, **kwargs)
+    
+    # Use these parameters to get predictions for training and validation sets
+    pred_train = classify(train_feature_matrix, theta, theta_0)
+    pred_val = classify(val_feature_matrix, theta, theta_0)
+    
+    # Calculate classification accuracy by comparing predictions with labels
+    train_accuracy = (pred_train == train_labels).mean()
+    val_accuracy = (pred_val == val_labels).mean()
+    
+    return (train_accuracy, val_accuracy)
+    
 #pragma: coderesponse end
 
 
