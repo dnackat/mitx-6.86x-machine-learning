@@ -21,9 +21,10 @@ y = np.array([[1],[1],[1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
+colors = ['b' if y == 1 else 'r' for y in y]
 fig = plt.figure()
 ax = Axes3D(fig)
-ax.plot(x[:,0], x[:,1], x[:,2], color='red', marker='+', markersize=15, ls = '')
+ax.scatter(x[:,0], x[:,1], x[:,2], s=40, c=colors)
 ax.hold(True)
 #plt.plot(x[1,0], x[1,1], color='blue', marker='o', markersize=8, ls = '')
 
@@ -39,14 +40,15 @@ T = 10
 theta = np.zeros((m,1))
 
 # Tolerance for floating point errors
-eps = 1e-4
+eps = 1e-5
 
 # Start the perceptron update loop
 mistakes = 0    # Keep track of mistakes
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
-        if abs(float(y[i]*(theta.T.dot(x[i,:])))) < eps:
+        agreement = float(y[i]*(theta.T.dot(x[i,:])))
+        if abs(agreement) < eps or agreement < 0.0:
             theta = theta + y[i]*x[i,:].reshape((m,1))
             print("current parameter vector:", theta)
             mistakes += 1

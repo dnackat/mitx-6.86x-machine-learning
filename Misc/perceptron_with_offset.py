@@ -19,9 +19,9 @@ y = np.array([[1],[1],[-1],[-1],[-1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
+colors = ['b' if y == 1 else 'r' for y in y]
 plt.figure()
-plt.plot(x[:2,0], x[:2,1], color='red', marker='+', markersize=15, ls = '')
-plt.plot(x[2:,0], x[2:,1], color='blue', marker='o', markersize=8, ls = '')
+plt.scatter(x[:,0], x[:,1], s=40, c=colors)
 
 # Number of examples
 n = x.shape[0]
@@ -34,19 +34,20 @@ T = 10
 
 # Initialize parameter vector and offset
 theta = np.array([[0],[0]])
-theta0 = 0
+theta0 = 0.0
 
 # Tolerance for floating point errors
-eps = 1e-4
+eps = 1e-5
 
 # Start the perceptron update loop
 mistakes = 0    # Keep track of mistakes
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
-        if abs(float(y[i]*(theta.T.dot(x[i,:]) + theta0))) < eps:
+        agreement = float(y[i]*(theta.T.dot(x[i,:]) + theta0))
+        if abs(agreement) < eps or agreement < 0.0:
             theta = theta + y[i]*x[i,:].reshape((m,1))
-            theta0 = theta0 + y[i]
+            theta0 = theta0 + float(y[i])
             print("current parameter vector:", theta)
             print("current offset: {:.1f}".format(theta0))
             mistakes += 1
