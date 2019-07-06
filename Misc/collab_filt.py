@@ -36,6 +36,7 @@ lam = 1
 
 # Compuate regularization term in the objective function
 reg_term = lam*((np.linalg.norm(U))**2 + (np.linalg.norm(V))**2)/2
+
 print("Regularization term is:", reg_term)
 
 # Update loop for U with V fixed
