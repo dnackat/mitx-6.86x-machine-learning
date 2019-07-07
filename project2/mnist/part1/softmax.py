@@ -65,8 +65,31 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     Returns
         c - the cost value (scalar)
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    # Get number of labels
+    k = theta.shape[0]
+    
+    # Get number of examples
+    n = X.shape[0]
+    
+    # avg error term
+    clip_prob_matrix = np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15)
+    
+    log_clip_matrix = np.log(clip_prob_matrix)
+    
+    error_sum = 0.0
+    
+    for i in range(n):
+        for j in range(k):
+            if Y[i] == j:
+                error_sum += log_clip_matrix[j,i]
+                
+    error_term = (-1/n)*error_sum
+                
+    # Regularization term
+    reg_term = (lambda_factor/2)*np.linalg.norm(theta)**2
+    
+    return error_term + reg_term
+    
 #pragma: coderesponse end
 
 #pragma: coderesponse template
@@ -87,8 +110,26 @@ def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_param
     Returns:
         theta - (k, d) NumPy array that is the final value of parameters theta
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    # Get number of labels
+    k = theta.shape[0]
+    
+    # Get number of examples
+    n = X.shape[0]
+    
+    # Create spare matrix of [[y(i) == j]]
+    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(k,n)).toarray()
+    
+    # Matrix of Probabilities
+    P = compute_probabilities(X, theta, temp_parameter)
+    
+    # Gradient matrix of theta
+    grad_theta = (-1/(temp_parameter*n))*((M - P) @ X) + lambda_factor*theta
+    
+    # Gradient descent update of theta matrix
+    theta = theta - alpha*grad_theta
+    
+    return theta
+    
 #pragma: coderesponse end
 
 #pragma: coderesponse template
