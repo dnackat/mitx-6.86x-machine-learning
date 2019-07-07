@@ -32,8 +32,20 @@ def compute_probabilities(X, theta, temp_parameter):
     Returns:
         H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    
+    # Compute the matrix of theta*X' (each row is a category, column an example)
+    R = (theta.dot(X.T))/temp_parameter
+    
+    # Compute fixed deduction factor for numerical stability (c is a vector: 1xn)
+    c = np.max(R, axis = 0)
+    
+    # Compute H matrix
+    H = np.exp(R - c)
+    
+    # Divide H by the normalizing term
+    H = H/np.sum(H, axis = 0)
+    
+    return H    
 #pragma: coderesponse end
 
 #pragma: coderesponse template
