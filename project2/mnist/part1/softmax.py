@@ -65,6 +65,7 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     Returns
         c - the cost value (scalar)
     """
+    
     # Get number of labels
     k = theta.shape[0]
     
@@ -72,18 +73,18 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     n = X.shape[0]
     
     # avg error term
+    
+    # Clip prob matrix to avoid NaN instances
     clip_prob_matrix = np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15)
     
+    # Take the log of the matrix of probabilities
     log_clip_matrix = np.log(clip_prob_matrix)
     
-    error_sum = 0.0
+    # Create a sparse matrix of [[y(i) == j]]
+    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape = (k,n)).toarray()
     
-    for i in range(n):
-        for j in range(k):
-            if Y[i] == j:
-                error_sum += log_clip_matrix[j,i]
-                
-    error_term = (-1/n)*error_sum
+    # Only add terms of log(matrix of prob) where M == 1
+    error_term = (-1/n)*np.sum(log_clip_matrix[M == 1])    
                 
     # Regularization term
     reg_term = (lambda_factor/2)*np.linalg.norm(theta)**2
