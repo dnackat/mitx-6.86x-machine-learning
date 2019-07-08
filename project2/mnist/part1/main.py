@@ -193,25 +193,39 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 
 ## Cubic Kernel ##
 # TODO: Find the 10-dimensional PCA representation of the training and test set
-n_components = 10
-pcs = principal_components(train_x)
-train_pca10 = project_onto_PC(train_x, pcs, n_components)
-test_pca10 = project_onto_PC(test_x, pcs, n_components)
+#n_components = 10
+#pcs = principal_components(train_x)
+#train_pca10 = project_onto_PC(train_x, pcs, n_components)
+#test_pca10 = project_onto_PC(test_x, pcs, n_components)
+#
+## TODO: First fill out cubicFeatures() function in features.py as the below code requires it.
+#
+#train_cube = cubic_features(train_pca10)
+#test_cube = cubic_features(test_pca10)
+## train_cube (and test_cube) is a representation of our training (and test) data
+## after applying the cubic kernel feature mapping to the 10-dimensional PCA representations.
+#
+#
+## TODO: Train your softmax regression model using (train_cube, train_y)
+##       and evaluate its accuracy on (test_cube, test_y).
+#theta, cost_function_history = softmax_regression(train_cube, train_y, temp_parameter=1, alpha= 0.3, lambda_factor = 1.0e-4, k = 10, num_iterations = 150)
+#
+#plot_cost_function_over_time(cost_function_history)
+#
+#test_error = compute_test_error(test_cube, test_y, theta, temp_parameter=1)
+#
+#print("Test error with 10-dim PCA with cubic features:", test_error)
 
-# TODO: First fill out cubicFeatures() function in features.py as the below code requires it.
+# Implement kernelized softmax regression
 
-train_cube = cubic_features(train_pca10)
-test_cube = cubic_features(test_pca10)
-# train_cube (and test_cube) is a representation of our training (and test) data
-# after applying the cubic kernel feature mapping to the 10-dimensional PCA representations.
+# Truncate the training set to have only 20,000 examples
+indices = np.random.permutation(train_x.shape[0])
 
+train_x_trunc = train_x[indices,:]
+train_y_trunc = train_y[indices]
 
-# TODO: Train your softmax regression model using (train_cube, train_y)
-#       and evaluate its accuracy on (test_cube, test_y).
-theta, cost_function_history = softmax_regression(train_cube, train_y, temp_parameter=1, alpha= 0.3, lambda_factor = 1.0e-4, k = 10, num_iterations = 150)
-
-plot_cost_function_over_time(cost_function_history)
-
-test_error = compute_test_error(test_cube, test_y, theta, temp_parameter=1)
-
-print("Test error with 10-dim PCA with cubic features:", test_error)
+# Find the 44 dimensional PCA representation of training and test sets
+n_components = 44
+pcs = principal_components(train_x_trunc)
+train_pca44 = project_onto_PC(train_x_trunc, pcs, n_components)
+test_pca44 = project_onto_PC(test_x, pcs, n_components)
