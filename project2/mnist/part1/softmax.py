@@ -387,16 +387,16 @@ def get_kernel_classification(alpha_matrix, kernel_matrix, temp_parameter):
     Makes predictions by classifying a given dataset
 
     Args:
+        alpha_matrix - (k, n) NumPy array where row j represents alpha values for label j
         kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
         to phi(x_n).phi(x_1)). For the test set, kernel_matrix is (n,m) where m
         is the number of examples in the test set.
-        alpha_matrix - (k, n) NumPy array where row j represents alpha values for
-                label j
         temp_parameter - the temperature parameter of softmax function (scalar)
 
     Returns:
         Predicted Y - (n, ) NumPy array, containing the predicted label (a number between 0-9) for
-            each data point
+        each data point. For the test set, predicted Y is (m, ), where m is the
+        number of examples in the test set.
     """
     
     probabilities = compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter)
