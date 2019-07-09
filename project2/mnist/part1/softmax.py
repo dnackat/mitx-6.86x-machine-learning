@@ -232,11 +232,10 @@ def plot_cost_function_over_time(cost_function_history):
     plt.show()
 
 def compute_test_error(X, Y, theta, temp_parameter):
-    error_count = 0.
     assigned_labels = get_classification(X, theta, temp_parameter)
     return 1 - np.mean(assigned_labels == Y)
 
-# Functions for kernelized softmax regression
+#%% Functions for kernelized softmax regression
 def compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter):
     """
     Computes, for each datapoint X[i], the probability that X[i] is labeled as j

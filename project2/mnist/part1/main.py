@@ -226,8 +226,8 @@ indices = np.random.permutation(n)
 train_x_trunc = train_x[indices,:]
 train_y_trunc = train_y[indices]
 
-# Find the 44 dimensional PCA representation of training and test sets
-n_components = 44
+# Find PCA representation of training and test sets
+n_components = 18
 pcs = principal_components(train_x_trunc)
 train_pca44 = project_onto_PC(train_x_trunc, pcs, n_components)
 test_pca44 = project_onto_PC(test_x, pcs, n_components)
@@ -254,4 +254,7 @@ def run_kernel_softmax_on_MNIST(kernel_train, train_y, kernel_test, test_y, \
     
     return test_error_kernel
 
-print("Test error for kernelized softmax regression:", test_error_kernel)
+print("Test error for kernelized softmax regression:", \
+      run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, kernel_test, test_y, \
+                                temp_parameter=1.0, lambda_factor=0.01, \
+                                k=10, learning_rate=0.3, num_iterations=150))
