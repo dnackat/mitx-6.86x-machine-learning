@@ -242,8 +242,10 @@ def compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter):
     for j = 0, 1, ..., k-1
 
     Args:
-        X - (n, d) NumPy array (n datapoints each with d features)
-        theta - (k, d) NumPy array, where row j represents the parameters of our model for label j
+        alpha_matrix - (k, n) NumPy array where row j represents alpha values for
+                label j
+        kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
+        to phi(x_n).phi(x_1))
         temp_parameter - the temperature parameter of softmax function (scalar)
     Returns:
         H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
@@ -268,11 +270,12 @@ def compute_kernel_cost_function(alpha_matrix, kernel_matrix, Y, lambda_factor, 
     Computes the total cost over every datapoint.
 
     Args:
-        X - (n, d) NumPy array (n datapoints each with d features)
+        alpha_matrix - (k, n) NumPy array where row j represents alpha values for
+                label j
+        kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
+        to phi(x_n).phi(x_1))
         Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
             data point
-        theta - (k, d) NumPy array, where row j represents the parameters of our
-                model for label j
         lambda_factor - the regularization constant (scalar)
         temp_parameter - the temperature parameter of softmax function (scalar)
 
@@ -289,7 +292,8 @@ def compute_kernel_cost_function(alpha_matrix, kernel_matrix, Y, lambda_factor, 
     ### avg error term ###
     
     # Clip prob matrix to avoid NaN instances
-    clip_prob_matrix = np.clip(compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter), 1e-15, 1-1e-15)
+    clip_prob_matrix = np.clip(compute_kernel_probabilities(alpha_matrix, \
+                            kernel_matrix, temp_parameter), 1e-15, 1-1e-15)
     
     # Take the log of the matrix of probabilities
     log_clip_matrix = np.log(clip_prob_matrix)
@@ -305,22 +309,24 @@ def compute_kernel_cost_function(alpha_matrix, kernel_matrix, Y, lambda_factor, 
     
     return error_term + reg_term
 
-def run_kernel_gradient_descent_iteration(alpha_matrix, kernel_matrix, Y, learning_rate, lambda_factor, temp_parameter):
+def run_kernel_gradient_descent_iteration(alpha_matrix, kernel_matrix, Y, \
+                            learning_rate, lambda_factor, temp_parameter):
     """
     Runs one step of batch gradient descent
 
     Args:
-        X - (n, d) NumPy array (n datapoints each with d features)
+        alpha_matrix - (k, n) NumPy array where row j represents alpha values for
+                label j
+        kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
+        to phi(x_n).phi(x_1))
         Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
             data point
-        theta - (k, d) NumPy array, where row j represents the parameters of our
-                model for label j
-        alpha - the learning rate (scalar)
+        learning_rate - the learning rate, alpha or eta (scalar)
         lambda_factor - the regularization constant (scalar)
         temp_parameter - the temperature parameter of softmax function (scalar)
 
     Returns:
-        theta - (k, d) NumPy array that is the final value of parameters theta
+        alpha - (k, n) NumPy array that is the final value of alpha
     """
     
     # Get number of labels
@@ -343,25 +349,27 @@ def run_kernel_gradient_descent_iteration(alpha_matrix, kernel_matrix, Y, learni
     
     return alpha_matrix
 
-def softmax_kernel_regression(Y, kernel_matrix, temp_parameter, learning_rate, lambda_factor, k, num_iterations):
+def softmax_kernel_regression(Y, kernel_matrix, temp_parameter, learning_rate, \
+                              lambda_factor, k, num_iterations):
     """
     Runs batch gradient descent for a specified number of iterations on a dataset
-    with theta initialized to the all-zeros array. Here, theta is a k by d NumPy array
-    where row j represents the parameters of our model for label j for
+    with alphas initialized to the all-zeros array. Here, alpha is a k by n NumPy array
+    where row j represents the alpha values of our model for label j for
     j = 0, 1, ..., k-1
 
     Args:
-        X - (n, d - 1) NumPy array (n data points, each with d-1 features)
         Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
             data point
+        kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
+        to phi(x_n).phi(x_1))
         temp_parameter - the temperature parameter of softmax function (scalar)
-        alpha - the learning rate (scalar)
+        learning_rate - the learning rate, alpha or eta (scalar)
         lambda_factor - the regularization constant (scalar)
         k - the number of labels (scalar)
         num_iterations - the number of iterations to run gradient descent (scalar)
 
     Returns:
-        theta - (k, d) NumPy array that is the final value of parameters theta
+        alpha - (k, n) NumPy array that is the final value of alpha
         cost_function_progression - a Python list containing the cost calculated at each step of gradient descent
     """
     
@@ -379,13 +387,15 @@ def get_kernel_classification(alpha_matrix, kernel_matrix, temp_parameter):
     Makes predictions by classifying a given dataset
 
     Args:
-        X - (n, d - 1) NumPy array (n data points, each with d - 1 features)
-        theta - (k, d) NumPy array where row j represents the parameters of our model for
+        kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
+        to phi(x_n).phi(x_1)). For the test set, kernel_matrix is (n,m) where m
+        is the number of examples in the test set.
+        alpha_matrix - (k, n) NumPy array where row j represents alpha values for
                 label j
         temp_parameter - the temperature parameter of softmax function (scalar)
 
     Returns:
-        Y - (n, ) NumPy array, containing the predicted label (a number between 0-9) for
+        Predicted Y - (n, ) NumPy array, containing the predicted label (a number between 0-9) for
             each data point
     """
     

@@ -219,24 +219,28 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 #%% Implement kernelized softmax regression
     
 # Truncate the training set to have only 20,000 examples
-n = 20000
+n = 5000
+n_test = 2000
 k = 10  # number of categories
-indices = np.random.permutation(n)
+indices_train = np.random.permutation(n)
+indices_test = np.random.permutation(n_test)
 
-train_x_trunc = train_x[indices,:]
-train_y_trunc = train_y[indices]
+train_x_trunc = train_x[indices_train,:]
+train_y_trunc = train_y[indices_train]
+test_x_trunc = test_x[indices_test,:]
+test_y_trunc = test_y[indices_test]
 
 # Find PCA representation of training and test sets
 n_components = 18
 pcs = principal_components(train_x_trunc)
-train_pca44 = project_onto_PC(train_x_trunc, pcs, n_components)
-test_pca44 = project_onto_PC(test_x, pcs, n_components)
+train_pca = project_onto_PC(train_x_trunc, pcs, n_components)
+test_pca = project_onto_PC(test_x_trunc, pcs, n_components)
 
 # Kernel matrix for training data
-kernel_train = rbf_kernel(train_pca44, train_pca44, gamma=0.5)
+kernel_train = rbf_kernel(train_pca, train_pca, gamma=0.5)
 
 # Kernel matrix for test data
-kernel_test = rbf_kernel(train_pca44, test_pca44, gamma=0.5)
+kernel_test = rbf_kernel(train_pca, test_pca, gamma=0.5)
     
 def run_kernel_softmax_on_MNIST(kernel_train, train_y, kernel_test, test_y, \
                                 temp_parameter=1.0, lambda_factor=0.01, \
@@ -255,6 +259,6 @@ def run_kernel_softmax_on_MNIST(kernel_train, train_y, kernel_test, test_y, \
     return test_error_kernel
 
 print("Test error for kernelized softmax regression:", \
-      run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, kernel_test, test_y, \
-                                temp_parameter=1.0, lambda_factor=0.01, \
+      run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, kernel_test, test_y_trunc, \
+                                temp_parameter=0.5, lambda_factor=0.01, \
                                 k=10, learning_rate=0.3, num_iterations=150))
