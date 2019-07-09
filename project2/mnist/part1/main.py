@@ -219,7 +219,9 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 # Implement kernelized softmax regression
 
 # Truncate the training set to have only 20,000 examples
-indices = np.random.permutation(train_x.shape[0])
+n = 20000
+k = 10  # number of categories
+indices = np.random.permutation(n)
 
 train_x_trunc = train_x[indices,:]
 train_y_trunc = train_y[indices]
@@ -229,3 +231,13 @@ n_components = 44
 pcs = principal_components(train_x_trunc)
 train_pca44 = project_onto_PC(train_x_trunc, pcs, n_components)
 test_pca44 = project_onto_PC(test_x, pcs, n_components)
+
+# Compute the kernel matrix for training data
+#kernel_train = rbf_kernel(train_pca44, train_pca44, gamma=0.5)
+
+# Compute the matrix of alphas
+import scipy.sparse as sp
+alphas = sp.coo_matrix(([1]*n, (train_y_trunc, range(n))), shape=(k,n)).toarray()
+
+# Compute matrix of probabilities
+P = compute_kernel_probabilities(alphas, kernel_train, temp_parameter=1)

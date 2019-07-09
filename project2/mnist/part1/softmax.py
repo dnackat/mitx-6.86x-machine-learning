@@ -235,3 +235,73 @@ def compute_test_error(X, Y, theta, temp_parameter):
     error_count = 0.
     assigned_labels = get_classification(X, theta, temp_parameter)
     return 1 - np.mean(assigned_labels == Y)
+
+# Functions for kernelized softmax regression
+def compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter):
+    """
+    Computes, for each datapoint X[i], the probability that X[i] is labeled as j
+    for j = 0, 1, ..., k-1
+
+    Args:
+        X - (n, d) NumPy array (n datapoints each with d features)
+        theta - (k, d) NumPy array, where row j represents the parameters of our model for label j
+        temp_parameter - the temperature parameter of softmax function (scalar)
+    Returns:
+        H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
+    """
+    
+    # Compute the matrix of alpha*K*y
+    R = alpha_matrix.dot(kernel_matrix)
+    
+    # Compute fixed deduction factor for numerical stability (c is a vector: 1xn)
+    c = np.max(R, axis = 0)
+    
+    # Compute H matrix
+    H = np.exp(R - c)
+    
+    # Divide H by the normalizing term
+    H = H/np.sum(H, axis = 0)
+    
+    return H
+
+def compute_kernel_cost_function(X, Y, theta, lambda_factor, temp_parameter):
+    """
+    Computes the total cost over every datapoint.
+
+    Args:
+        X - (n, d) NumPy array (n datapoints each with d features)
+        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
+            data point
+        theta - (k, d) NumPy array, where row j represents the parameters of our
+                model for label j
+        lambda_factor - the regularization constant (scalar)
+        temp_parameter - the temperature parameter of softmax function (scalar)
+
+    Returns
+        c - the cost value (scalar)
+    """
+    
+    # Get number of labels
+    k = theta.shape[0]
+    
+    # Get number of examples
+    n = X.shape[0]
+    
+    # avg error term
+    
+    # Clip prob matrix to avoid NaN instances
+    clip_prob_matrix = np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15)
+    
+    # Take the log of the matrix of probabilities
+    log_clip_matrix = np.log(clip_prob_matrix)
+    
+    # Create a sparse matrix of [[y(i) == j]]
+    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape = (k,n)).toarray()
+    
+    # Only add terms of log(matrix of prob) where M == 1
+    error_term = (-1/n)*np.sum(log_clip_matrix[M == 1])    
+                
+    # Regularization term
+    reg_term = (lambda_factor/2)*np.linalg.norm(theta)**2
+    
+    return error_term + reg_term
