@@ -264,7 +264,7 @@ def compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter):
     
     return H
 
-def compute_kernel_cost_function(X, Y, theta, lambda_factor, temp_parameter):
+def compute_kernel_cost_function(alpha_matrix, kernel_matrix, Y, lambda_factor, temp_parameter):
     """
     Computes the total cost over every datapoint.
 
@@ -281,16 +281,16 @@ def compute_kernel_cost_function(X, Y, theta, lambda_factor, temp_parameter):
         c - the cost value (scalar)
     """
     
-    # Get number of labels
-    k = theta.shape[0]
+    # Get number of categories
+    k = alpha_matrix.shape[0]
     
     # Get number of examples
-    n = X.shape[0]
+    n = kernel_matrix.shape[0]
     
-    # avg error term
+    ### avg error term ###
     
     # Clip prob matrix to avoid NaN instances
-    clip_prob_matrix = np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15)
+    clip_prob_matrix = np.clip(compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter), 1e-15, 1-1e-15)
     
     # Take the log of the matrix of probabilities
     log_clip_matrix = np.log(clip_prob_matrix)
@@ -301,7 +301,98 @@ def compute_kernel_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     # Only add terms of log(matrix of prob) where M == 1
     error_term = (-1/n)*np.sum(log_clip_matrix[M == 1])    
                 
-    # Regularization term
-    reg_term = (lambda_factor/2)*np.linalg.norm(theta)**2
+    ### Regularization term ###
+    reg_term = (lambda_factor/2)*np.linalg.norm(alpha_matrix)**2
     
     return error_term + reg_term
+
+def run_kernel_gradient_descent_iteration(alpha_matrix, kernel_matrix, Y, learning_rate, lambda_factor, temp_parameter):
+    """
+    Runs one step of batch gradient descent
+
+    Args:
+        X - (n, d) NumPy array (n datapoints each with d features)
+        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
+            data point
+        theta - (k, d) NumPy array, where row j represents the parameters of our
+                model for label j
+        alpha - the learning rate (scalar)
+        lambda_factor - the regularization constant (scalar)
+        temp_parameter - the temperature parameter of softmax function (scalar)
+
+    Returns:
+        theta - (k, d) NumPy array that is the final value of parameters theta
+    """
+    
+    # Get number of labels
+    k = alpha_matrix.shape[0]
+    
+    # Get number of examples
+    n = kernel_matrix.shape[0]
+    
+    # Create spare matrix of [[y(i) == j]]
+    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(k,n)).toarray()
+    
+    # Matrix of Probabilities
+    P = compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter)
+    
+    # Gradient matrix of theta
+    grad_alpha = (-1/(temp_parameter*n))*((M - P) @ kernel_matrix) + lambda_factor*alpha_matrix
+    
+    # Gradient descent update of theta matrix
+    alpha_matrix = alpha_matrix - learning_rate*grad_alpha
+    
+    return alpha_matrix
+
+def softmax_kernel_regression(Y, kernel_matrix, temp_parameter, learning_rate, lambda_factor, k, num_iterations):
+    """
+    Runs batch gradient descent for a specified number of iterations on a dataset
+    with theta initialized to the all-zeros array. Here, theta is a k by d NumPy array
+    where row j represents the parameters of our model for label j for
+    j = 0, 1, ..., k-1
+
+    Args:
+        X - (n, d - 1) NumPy array (n data points, each with d-1 features)
+        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
+            data point
+        temp_parameter - the temperature parameter of softmax function (scalar)
+        alpha - the learning rate (scalar)
+        lambda_factor - the regularization constant (scalar)
+        k - the number of labels (scalar)
+        num_iterations - the number of iterations to run gradient descent (scalar)
+
+    Returns:
+        theta - (k, d) NumPy array that is the final value of parameters theta
+        cost_function_progression - a Python list containing the cost calculated at each step of gradient descent
+    """
+    
+    alphas = np.zeros([k, len(Y)])
+    cost_function_progression = []
+    for i in range(num_iterations):
+        cost_function_progression.append(compute_kernel_cost_function(alphas, kernel_matrix, \
+                                    Y, lambda_factor, temp_parameter))
+        alphas = run_kernel_gradient_descent_iteration(alphas, kernel_matrix, Y, learning_rate, \
+                                                lambda_factor, temp_parameter)
+    return alphas, cost_function_progression
+
+def get_kernel_classification(alpha_matrix, kernel_matrix, temp_parameter):
+    """
+    Makes predictions by classifying a given dataset
+
+    Args:
+        X - (n, d - 1) NumPy array (n data points, each with d - 1 features)
+        theta - (k, d) NumPy array where row j represents the parameters of our model for
+                label j
+        temp_parameter - the temperature parameter of softmax function (scalar)
+
+    Returns:
+        Y - (n, ) NumPy array, containing the predicted label (a number between 0-9) for
+            each data point
+    """
+    
+    probabilities = compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter)
+    return np.argmax(probabilities, axis = 0)
+
+def compute_kernel_test_error(alpha_matrix, kernel_matrix, Y, temp_parameter):
+    assigned_labels = get_kernel_classification(alpha_matrix, kernel_matrix, temp_parameter)
+    return 1 - np.mean(assigned_labels == Y)

@@ -216,8 +216,8 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 #
 #print("Test error with 10-dim PCA with cubic features:", test_error)
 
-# Implement kernelized softmax regression
-
+#%% Implement kernelized softmax regression
+    
 # Truncate the training set to have only 20,000 examples
 n = 20000
 k = 10  # number of categories
@@ -232,12 +232,26 @@ pcs = principal_components(train_x_trunc)
 train_pca44 = project_onto_PC(train_x_trunc, pcs, n_components)
 test_pca44 = project_onto_PC(test_x, pcs, n_components)
 
-# Compute the kernel matrix for training data
-#kernel_train = rbf_kernel(train_pca44, train_pca44, gamma=0.5)
+# Kernel matrix for training data
+kernel_train = rbf_kernel(train_pca44, train_pca44, gamma=0.5)
 
-# Compute the matrix of alphas
-import scipy.sparse as sp
-alphas = sp.coo_matrix(([1]*n, (train_y_trunc, range(n))), shape=(k,n)).toarray()
+# Kernel matrix for test data
+kernel_test = rbf_kernel(train_pca44, test_pca44, gamma=0.5)
+    
+def run_kernel_softmax_on_MNIST(kernel_train, train_y, kernel_test, test_y, \
+                                temp_parameter=1.0, lambda_factor=0.01, \
+                                k=10, learning_rate=0.3, num_iterations=150):
 
-# Compute matrix of probabilities
-P = compute_kernel_probabilities(alphas, kernel_train, temp_parameter=1)
+    # Softmax kernel regression
+    alphas, cost_function_history = softmax_kernel_regression(train_y, kernel_train, \
+                                    temp_parameter, learning_rate, \
+                                    lambda_factor, k, num_iterations)
+    # Plot cost vs iteration
+    plot_cost_function_over_time(cost_function_history)
+    
+    # Calculate test error
+    test_error_kernel = compute_kernel_test_error(alphas, kernel_test, test_y, temp_parameter=1)
+    
+    return test_error_kernel
+
+print("Test error for kernelized softmax regression:", test_error_kernel)
