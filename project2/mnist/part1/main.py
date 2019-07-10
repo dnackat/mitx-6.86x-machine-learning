@@ -262,3 +262,29 @@ print("Test error for kernelized softmax regression:", \
       run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, kernel_test, test_y_trunc, \
                                 temp_parameter=0.5, lambda_factor=0.01, \
                                 k=10, learning_rate=0.3, num_iterations=150))
+    
+#%% Kernelized classification using sklearn's SVM package
+#import sklearn
+#svm = sklearn.svm.SVC(C=100, gamma='scale')
+#svm.fit(train_x, train_y)
+#print((test_y == svm.predict(test_x)).mean())
+
+#%% Check gradient
+#import scipy.sparse as sparse
+#h = 1e-4
+#alpha_matrix = np.zeros([k,n])
+#M = sparse.coo_matrix(([1]*n, (train_y_trunc, range(n))), shape=(k,n)).toarray()
+#P = compute_kernel_probabilities(alpha_matrix, kernel_train, temp_parameter=0.5)
+#grad = (-1/(0.5*n))*((M - P) @ kernel_train) + 0.01*alpha_matrix
+#
+#grad_cost = np.zeros(grad.shape)
+#
+#for i in range(k):
+#    for j in range(n):
+#        alpha_more = np.zeros(alpha_matrix.shape)
+#        alpha_more[i,j] = alpha_matrix[i,j] + h
+#        cost_more = compute_kernel_cost_function(alpha_more, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
+#        alpha_less = np.zeros(alpha_matrix.shape)
+#        alpha_less[i,j] = alpha_matrix[i,j] - h
+#        cost_less = compute_kernel_cost_function(alpha_less, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
+#        grad_cost[i,j] = (cost_more-cost_less)/(2*h)
