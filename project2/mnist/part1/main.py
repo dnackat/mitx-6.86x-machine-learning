@@ -219,8 +219,8 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 #%% Implement kernelized softmax regression
     
 # Truncate the training set to have only 20,000 examples
-n = 50
-n_test = 20
+n = 5000
+n_test = 2000
 k = 10  # number of categories
 indices_train = np.random.permutation(n)
 indices_test = np.random.permutation(n_test)
@@ -231,7 +231,7 @@ test_x_trunc = test_x[indices_test,:]
 test_y_trunc = test_y[indices_test]
 
 # Find PCA representation of training and test sets
-n_components = 10
+n_components = 18
 pcs = principal_components(train_x_trunc)
 train_pca = project_onto_PC(train_x_trunc, pcs, n_components)
 test_pca = project_onto_PC(test_x_trunc, pcs, n_components)
@@ -275,7 +275,7 @@ h = 1e-4
 alpha_matrix = np.zeros([k,n])
 M = sparse.coo_matrix(([1]*n, (train_y_trunc, range(n))), shape=(k,n)).toarray()
 P = compute_kernel_probabilities(alpha_matrix, kernel_train, temp_parameter=0.5)
-grad = (-1/(0.5*n))*((M - P) @ kernel_train.T) + 0.0*alpha_matrix
+grad = (-1/(0.5*n))*((M - P) @ kernel_train.T) + 0.01*alpha_matrix
 
 grad_cost = np.zeros(grad.shape)
 
@@ -283,10 +283,10 @@ for i in range(k):
     for j in range(n):
         alpha_more = np.zeros(alpha_matrix.shape)
         alpha_more[i,j] = alpha_matrix[i,j] + h
-        cost_more = compute_kernel_cost_function(alpha_more, kernel_train, train_y_trunc, lambda_factor=0.0, temp_parameter=0.5)
+        cost_more = compute_kernel_cost_function(alpha_more, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
         alpha_less = np.zeros(alpha_matrix.shape)
         alpha_less[i,j] = alpha_matrix[i,j] - h
-        cost_less = compute_kernel_cost_function(alpha_less, kernel_train, train_y_trunc, lambda_factor=0.0, temp_parameter=0.5)
+        cost_less = compute_kernel_cost_function(alpha_less, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
         grad_cost[i,j] = (cost_more-cost_less)/(2*h)
 
 relative_error = np.linalg.norm(grad - grad_cost)**2/max(np.linalg.norm(grad)**2, np.linalg.norm(grad_cost)**2)
