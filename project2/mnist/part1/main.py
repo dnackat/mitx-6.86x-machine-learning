@@ -231,7 +231,7 @@ test_x_trunc = test_x[indices_test,:]
 test_y_trunc = test_y[indices_test]
 
 # Find PCA representation of training and test sets
-n_components = 18
+n_components = 20
 pcs = principal_components(train_x_trunc)
 train_pca = project_onto_PC(train_x_trunc, pcs, n_components)
 test_pca = project_onto_PC(test_x_trunc, pcs, n_components)
