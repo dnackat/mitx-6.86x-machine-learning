@@ -59,10 +59,15 @@ def rbf_kernel(X, Y, gamma):
         b = np.sum(d**2, axis=1)
         kernel_matrix[i,:] = np.exp(-gamma*b)
 
-# Vectorized version
-#    XdiffY = np.repeat(X,m,axis=0) - np.repeat(Y,n,axis=0)
-#
-#    kernel_matrix = np.exp(-gamma*np.sum(XdiffY**2,axis=1)).reshape((n,m))
-            
+# Vectorized version (runs slower than the single loop version)
+#    XTX = np.sum(X**2, axis=1)
+#    X_bcast = XTX[:, np.newaxis]     # Broadcast (n,) to (n,1)
+#    YTY = np.sum(Y**2, axis=1)
+#    Y_bcast = YTY[np.newaxis, :]     # Broadcast (m,) to (1,m)
+#    # X_bcast + Y_bcast now has the shape (n,m)
+#    XdiffY = (X_bcast + Y_bcast) - 2*X.dot(Y.T)     # ||X-Y||^2 exapnsion
+#    
+#    kernel_matrix = np.exp(-gamma*XdiffY)
+    
     return kernel_matrix
 # pragma: coderesponse end
