@@ -12,10 +12,15 @@ import matplotlib.pyplot as plt
 
 num_pts = 4
 
-def calc_activation(x,w,bias):
+def calc_activation(x,w,bias,fn="linear"):
     z = x.dot(w) + bias.T
-    #f = 5*z - 2
-    f = np.tanh(z)
+    if fn == "linear":
+        f = 5*z - 2
+    elif fn == "ReLU":
+        z[z <= 0] = 0
+        f = z
+    elif fn == "tanh":
+        f = np.tanh(z)
     return f
 
 x = np.array([[-1,-1],[1,-1],[-1,1],[1,1]])
@@ -24,7 +29,7 @@ y = np.array([[1],[-1],[-1],[1]])
 bias = np.array([[1],[1]])
 w = np.array([[1,-1],[-1,1]]) 
 
-f = calc_activation(x,w,bias)
+f = calc_activation(x,w,bias,"ReLU")
 print(f)
 
 # Plot data
