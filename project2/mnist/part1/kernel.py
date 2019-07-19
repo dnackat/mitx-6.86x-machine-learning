@@ -59,7 +59,7 @@ def rbf_kernel(X, Y, gamma):
         b = np.sum(d**2, axis=1)
         kernel_matrix[i,:] = np.exp(-gamma*b)
 
-# Vectorized version (runs slower than the single loop version)
+    # Vectorized version (runs slower than the single loop version)
 #    XTX = np.sum(X**2, axis=1)
 #    X_bcast = XTX[:, np.newaxis]     # Broadcast (n,) to (n,1)
 #    YTY = np.sum(Y**2, axis=1)
