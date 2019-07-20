@@ -224,8 +224,8 @@ import time
 # Start time
 start_time = time.time()
 
-n = 100
-n_test = 20
+n = 1000
+n_test = 200
 k = 10  # number of categories
 indices_train = np.random.permutation(n)
 indices_test = np.random.permutation(n_test)
@@ -261,7 +261,7 @@ def run_kernel_softmax_on_MNIST(kernel_train, train_y, kernel_test, test_y, \
     # Calculate test error
     test_error_kernel = compute_kernel_test_error(alphas, kernel_test, test_y, temp_parameter=1)
     
-    return (test_error_kernel,alphas)
+    return (test_error_kernel, alphas)
 
 test_error_kernel, alphas = run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, \
                     kernel_test, test_y_trunc, temp_parameter=0.5, \
