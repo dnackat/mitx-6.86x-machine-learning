@@ -261,12 +261,13 @@ def run_kernel_softmax_on_MNIST(kernel_train, train_y, kernel_test, test_y, \
     # Calculate test error
     test_error_kernel = compute_kernel_test_error(alphas, kernel_test, test_y, temp_parameter=1)
     
-    return test_error_kernel
+    return (test_error_kernel,alphas)
 
-print("Test error for kernelized softmax regression:", \
-      run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, kernel_test, test_y_trunc, \
-                                temp_parameter=0.5, lambda_factor=0.01, \
-                                k=10, learning_rate=0.3, num_iterations=150))
+test_error_kernel, alphas = run_kernel_softmax_on_MNIST(kernel_train, train_y_trunc, \
+                    kernel_test, test_y_trunc, temp_parameter=0.5, \
+                    lambda_factor=0.01, k=10, learning_rate=0.3, num_iterations=150)
+
+print("Test error for kernelized softmax regression:", test_error_kernel) 
 
 # End time
 end_time = time.time()
@@ -283,25 +284,46 @@ print("-----------------------------------------------------------------")
 #svm.fit(train_x, train_y)
 #print((test_y == svm.predict(test_x)).mean())
 
-#%% Check gradient
-h = 1e-4
-alpha_matrix = np.zeros([k,n])
+#%% Check gradient computation by comparing to numerical gradient
+def eval_numerical_gradient(f, x, h=1e-4):
+    """ Evaluates numerical gradient of cost function, f, using a central
+        difference scheme. This was written by erochassa on GitHub: 
+        https://github.com/erochassa/softmax_kernel/blob/master/softmax.ipynb"""
+    
+    grad = np.zeros(x.shape)
 
-grad = compute_kernel_gradient(alpha_matrix, kernel_train, train_y_trunc, \
+    # iterate over all indexes in x
+    it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
+    while not it.finished:
+        ix = it.multi_index
+        old_value = x[ix]
+        x[ix] = old_value + h # increment by h
+        fx_high = f(x) # evalute f(x + h)
+        x[ix] = old_value - h # decrement by h
+        fx_low = f(x) # evalute f(x - h)
+        x[ix] = old_value # restore to previous value (very important!)
+
+        # compute the partial derivative
+        grad[ix] = (fx_high - fx_low) / (2.*h) # the slope
+        it.iternext() # step to next dimension
+    
+    return grad
+
+def grad_relative_error(alphas):
+    # True gradient
+    grad = compute_kernel_gradient(alphas, kernel_train, train_y_trunc, \
                                lambda_factor=1e-5, temp_parameter=0.5)
+    
+    # Cost function
+    ccf = lambda alphas : compute_kernel_cost_function(alphas, kernel_train, \
+                            train_y_trunc, lambda_factor=1e-5, temp_parameter=0.5)
+    
+    # Numerical gradient
+    num_grad = eval_numerical_gradient(ccf, alphas)
+    
+    # Relative error: abs(grad - num_grad)/max(abs(grad),abs(num_grad))
+    relative_error = np.max(np.abs((grad - num_grad)/np.maximum(np.abs(grad), np.abs(num_grad))))
+    
+    return relative_error
 
-num_grad = np.zeros(grad.shape)
-
-for i in range(k):
-    for j in range(n):
-        alpha_more = np.zeros(alpha_matrix.shape)
-        alpha_more[i,j] = alpha_more[i,j] + h
-        cost_more = compute_kernel_cost_function(alpha_more, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
-        alpha_less = np.zeros(alpha_matrix.shape)
-        alpha_less[i,j] = alpha_less[i,j] - h
-        cost_less = compute_kernel_cost_function(alpha_less, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
-        num_grad[i,j] = (cost_more-cost_less)/(2*h)
-
-relative_error = np.max(np.abs((grad-num_grad)/np.maximum(np.abs(grad), np.abs(num_grad))))
-
-print("The relative error for gradient computation is:", relative_error)
+print("The relative error for gradient computation is:", grad_relative_error(alphas))
