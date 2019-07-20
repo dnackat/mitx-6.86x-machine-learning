@@ -224,8 +224,8 @@ import time
 # Start time
 start_time = time.time()
 
-n = 5000
-n_test = 2000
+n = 100
+n_test = 20
 k = 10  # number of categories
 indices_train = np.random.permutation(n)
 indices_test = np.random.permutation(n_test)
@@ -271,10 +271,12 @@ print("Test error for kernelized softmax regression:", \
 # End time
 end_time = time.time()
 
+print("-----------------------------------------------------------------")
 print("Time taken to run kernelized softmax regression with {} training examples\
  and {} test examples with {} categories and {} principal components\
  is: {:.2f} s".format(n, n_test, k, n_components,end_time-start_time))
-    
+print("-----------------------------------------------------------------")
+   
 #%% Kernelized classification using sklearn's SVM package
 #import sklearn
 #svm = sklearn.svm.SVC(C=100, gamma='scale')
@@ -282,23 +284,24 @@ print("Time taken to run kernelized softmax regression with {} training examples
 #print((test_y == svm.predict(test_x)).mean())
 
 #%% Check gradient
-#import scipy.sparse as sparse
-#h = 1e-4
-#alpha_matrix = np.zeros([k,n])
-#M = sparse.coo_matrix(([1]*n, (train_y_trunc, range(n))), shape=(k,n)).toarray()
-#P = compute_kernel_probabilities(alpha_matrix, kernel_train, temp_parameter=0.5)
-#grad = (-1/(0.5*n))*((M - P) @ kernel_train.T) + 0.01*alpha_matrix.dot(kernel_train)
-#
-#grad_cost = np.zeros(grad.shape)
-#
-#for i in range(k):
-#    for j in range(n):
-#        alpha_more = np.zeros(alpha_matrix.shape)
-#        alpha_more[i,j] = alpha_more[i,j] + h
-#        cost_more = compute_kernel_cost_function(alpha_more, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
-#        alpha_less = np.zeros(alpha_matrix.shape)
-#        alpha_less[i,j] = alpha_less[i,j] - h
-#        cost_less = compute_kernel_cost_function(alpha_less, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
-#        grad_cost[i,j] = (cost_more-cost_less)/(2*h)
-#
-#relative_error = np.linalg.norm(grad - grad_cost)**2/max(np.linalg.norm(grad)**2, np.linalg.norm(grad_cost)**2)
+h = 1e-4
+alpha_matrix = np.zeros([k,n])
+
+grad = compute_kernel_gradient(alpha_matrix, kernel_train, train_y_trunc, \
+                               lambda_factor=1e-5, temp_parameter=0.5)
+
+num_grad = np.zeros(grad.shape)
+
+for i in range(k):
+    for j in range(n):
+        alpha_more = np.zeros(alpha_matrix.shape)
+        alpha_more[i,j] = alpha_more[i,j] + h
+        cost_more = compute_kernel_cost_function(alpha_more, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
+        alpha_less = np.zeros(alpha_matrix.shape)
+        alpha_less[i,j] = alpha_less[i,j] - h
+        cost_less = compute_kernel_cost_function(alpha_less, kernel_train, train_y_trunc, lambda_factor=0.01, temp_parameter=0.5)
+        num_grad[i,j] = (cost_more-cost_less)/(2*h)
+
+relative_error = np.max(np.abs((grad-num_grad)/np.maximum(np.abs(grad), np.abs(num_grad))))
+
+print("The relative error for gradient computation is:", relative_error)

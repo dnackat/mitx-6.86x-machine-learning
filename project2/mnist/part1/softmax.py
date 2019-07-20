@@ -252,7 +252,7 @@ def compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter):
     """
     
     # Compute the matrix of alpha*K*y
-    R = alpha_matrix.dot(kernel_matrix)
+    R = alpha_matrix.dot(kernel_matrix)/temp_parameter
     
     # Compute fixed deduction factor for numerical stability (c is a vector: 1xn)
     c = np.max(R, axis = 0)
@@ -309,6 +309,37 @@ def compute_kernel_cost_function(alpha_matrix, kernel_matrix, Y, lambda_factor, 
     
     return error_term + reg_term
 
+def compute_kernel_gradient(alpha_matrix, kernel_matrix, Y, lambda_factor, temp_parameter):
+    """ 
+    Computes the gradient of the cost function with respect to alphas
+    Args:
+        alpha_matrix - (k, n) NumPy array where row j represents alpha values for
+                label j
+        kernel_matrix - (n, n) NumPy array (similarity matrix, each column: phi(x_1).phi(x_1)
+        to phi(x_n).phi(x_1))
+        Y - (n, ) NumPy array containing the labels (a number from 0-9) for each
+            data point
+        learning_rate - the learning rate, alpha or eta (scalar)
+        lambda_factor - the regularization constant (scalar)
+        temp_parameter - the temperature parameter of softmax function (scalar)
+    """
+    # Get number of labels
+    k = alpha_matrix.shape[0]
+    
+    # Get number of examples
+    n = kernel_matrix.shape[0]
+    
+    # Create spare matrix of [[y(i) == j]]
+    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(k,n)).toarray()
+    
+    # Matrix of Probabilities
+    P = compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter)
+    
+    # Gradient matrix of theta
+    grad_alpha = (-1/(temp_parameter*n))*((M - P) @ kernel_matrix) + lambda_factor*alpha_matrix
+    
+    return grad_alpha
+
 def run_kernel_gradient_descent_iteration(alpha_matrix, kernel_matrix, Y, \
                             learning_rate, lambda_factor, temp_parameter):
     """
@@ -329,20 +360,9 @@ def run_kernel_gradient_descent_iteration(alpha_matrix, kernel_matrix, Y, \
         alpha - (k, n) NumPy array that is the final value of alpha
     """
     
-    # Get number of labels
-    k = alpha_matrix.shape[0]
-    
-    # Get number of examples
-    n = kernel_matrix.shape[0]
-    
-    # Create spare matrix of [[y(i) == j]]
-    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(k,n)).toarray()
-    
-    # Matrix of Probabilities
-    P = compute_kernel_probabilities(alpha_matrix, kernel_matrix, temp_parameter)
-    
     # Gradient matrix of theta
-    grad_alpha = (-1/(temp_parameter*n))*((M - P) @ kernel_matrix) + lambda_factor*alpha_matrix
+    grad_alpha = compute_kernel_gradient(alpha_matrix, kernel_matrix, Y, \
+                                         lambda_factor, temp_parameter)
     
     # Gradient descent update of theta matrix
     alpha_matrix = alpha_matrix - learning_rate*grad_alpha
@@ -372,7 +392,7 @@ def softmax_kernel_regression(Y, kernel_matrix, temp_parameter, learning_rate, \
         alpha - (k, n) NumPy array that is the final value of alpha
         cost_function_progression - a Python list containing the cost calculated at each step of gradient descent
     """
-    
+ 
     alphas = np.zeros([k, len(Y)])
     cost_function_progression = []
     for i in range(num_iterations):
