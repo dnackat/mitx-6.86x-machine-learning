@@ -17,7 +17,7 @@ W_oh = 0; W_ox = 100; b_o = 0   # output gate
 W_ch = -100; W_cx = 50; b_c = 0     # memory cell
 
 # Length of sequence
-n = 6   
+n = 5   
 
 # Vectors of states and gates
 f_t = np.zeros((n,1))     # forget gate
@@ -27,7 +27,7 @@ c_t = np.zeros((n,1))     # vector of memory cells
 h_t = np.zeros((n,1))     # vector of visible states
 
 # Vector of input sequence 
-x_t = np.array([[0],[0],[1],[1],[1],[0]])
+x_t = np.array([[1],[1],[0],[1],[1]])
 
 # Sigmoid function
 def sigmoid(x):
@@ -65,6 +65,6 @@ for i in range(n):
     c_t[i] = f_t[i]*c + i_t[i]*c_rev
     
     # New visible state rounded to the nesrest integer (what to show)
-    h_t[i] = np.floor(o_t[i]*np.tanh(c_t[i]) + 0.5)
+    h_t[i] = np.round(o_t[i]*np.tanh(c_t[i]))
     
 print(h_t)
