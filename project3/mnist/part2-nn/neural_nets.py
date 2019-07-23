@@ -68,7 +68,6 @@ class NeuralNetwork():
         hidden_layer_activation = ReLU_vec(hidden_layer_weighted_input) #(3 by 1 matrix)
 
         output = self.hidden_to_output_weights.dot(hidden_layer_activation)
-        #output_activation_vec = np.vectorize(output_layer_activation)   # Vectorize output activation
         activated_output = output_layer_activation(output)
 
         ### Backpropagation ###
@@ -101,9 +100,7 @@ class NeuralNetwork():
         ReLU_vec = np.vectorize(rectified_linear_unit)
         hidden_layer_activation = ReLU_vec(hidden_layer_weighted_input)
         output = self.hidden_to_output_weights.dot(hidden_layer_activation)
-        #output_vec = np.vectorize(output_layer_activation)
-        activated_output = output_layer_activation(output)[0,0]
-        
+        activated_output = output_layer_activation(output)
 
         return activated_output.item()
 #pragma: coderesponse end
