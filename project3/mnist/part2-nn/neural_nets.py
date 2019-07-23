@@ -22,7 +22,10 @@ def rectified_linear_unit(x):
 #pragma: coderesponse template
 def rectified_linear_unit_derivative(x):
     """ Returns the derivative of ReLU."""
-    # TODO
+    if x <= 0:
+        return 0
+    else:
+        return 1
 #pragma: coderesponse end
 
 def output_layer_activation(x):
@@ -60,11 +63,13 @@ class NeuralNetwork():
         input_values = np.matrix([[x1],[x2]]) # 2 by 1
 
         # Calculate the input and activation of the hidden layer
-        hidden_layer_weighted_input = # TODO (3 by 1 matrix)
-        hidden_layer_activation = # TODO (3 by 1 matrix)
+        hidden_layer_weighted_input = input_to_hidden_weights.dot(input_values) #(3 by 1 matrix)
+        ReLU_vec = np.vectorize(rectified_linear_unit)  # Vectorize ReLU function
+        hidden_layer_activation = ReLU_vec(hidden_layer_weighted_input) #(3 by 1 matrix)
 
-        output =  # TODO
-        activated_output = # TODO
+        output = hidden_to_output_weights.dot(hidden_layer_activation)
+        output_activation_vec = np.vectorize(output_layer_activation)   # Vectorize output activation
+        activated_output = output_activation_vec(output)
 
         ### Backpropagation ###
 
