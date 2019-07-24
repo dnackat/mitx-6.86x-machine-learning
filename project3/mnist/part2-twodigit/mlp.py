@@ -21,14 +21,13 @@ class MLP(nn.Module):
         self.flatten = Flatten()
         self.linear1 = nn.Linear(input_dimension, 64)
         self.linear2 = nn.Linear(64, 20)
-        self.softmax = nn.Softmax()
         
     def forward(self, x):
         xf = self.flatten(x)
-        xr = self.linear1(xf)
-        xl2 = self.linear2(xr)
-        out_first_digit = self.softmax(xl2[:,:10])
-        out_second_digit = self.softmax(xl2[:,10:]) 
+        xl1 = self.linear1(xf)
+        xl2 = self.linear2(xl1)
+        out_first_digit = xl2[:,:10]
+        out_second_digit = xl2[:,10:]
         
         return out_first_digit, out_second_digit
 #pragma: coderesponse end
