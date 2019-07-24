@@ -290,7 +290,7 @@ def eval_numerical_gradient(f, x, h=1e-4):
         difference scheme. This was written by erochassa on GitHub: 
         https://github.com/erochassa/softmax_kernel/blob/master/softmax.ipynb"""
     
-    grad = np.zeros(x.shape)
+    grad = np.zeros_like(x)
 
     # iterate over all indexes in x
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
