@@ -22,8 +22,8 @@ def batchify_data(x_data, y_data, batch_size):
     for i in range(0, N, batch_size):
         batches.append({
             'x': torch.tensor(x_data[i:i+batch_size], dtype=torch.float32),
-            'y': torch.tensor(y_data[i:i+batch_size], dtype=torch.long
-        )})
+            'y': torch.tensor(y_data[i:i+batch_size], dtype=torch.long)
+            })
     return batches
 
 def compute_accuracy(predictions, y):
