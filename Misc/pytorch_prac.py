@@ -219,6 +219,9 @@ print(linear.weight)
 print([k for k, v in conv.named_parameters()])
 
 #%% Make our own model!
+import torch.nn as nn
+import torch.nn.functional as F
+
 class NNet(nn.Module):
     def __init__(self):
         super(NNet, self).__init__()
@@ -299,9 +302,9 @@ def test(model, test_loader):
             
             correct += pred.eq(target.view_as(pred)).sum().item()
             
-            test_loss /= len(test_loader.dataset)
+        test_loss /= len(test_loader.dataset)
             
-            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'\
+        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'\
                   .format(test_loss, correct, len(test_loader.dataset), \
                           100. * correct/len(test_loader.dataset)))
             
@@ -313,7 +316,8 @@ train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=True, download=True,
                        transform=transforms.Compose([
                                transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))])),
+                               transforms.Normalize((0.1307,), (0.3081,))
+                       ])),
         batch_size=32, shuffle=True)
     
 test_loader = torch.utils.data.DataLoader(
@@ -323,3 +327,7 @@ test_loader = torch.utils.data.DataLoader(
                        transforms.Normalize((0.1307,), (0.3081,))
                    ])),
     batch_size=32, shuffle=True)
+    
+for epoch in range(1, 11):
+    train(model, train_loader, optimizer, epoch)
+    test(model, test_loader)

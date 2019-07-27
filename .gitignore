@@ -3,3 +3,4 @@
 *.pyc
 *.gz
 *.pt
+data/*
