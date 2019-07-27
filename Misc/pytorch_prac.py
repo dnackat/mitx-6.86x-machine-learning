@@ -201,6 +201,7 @@ plt.show()
 
 #%% torch.nn package 
 import torch.nn as nn
+import torch.nn.functional as F
 
 # Linear layer: in_features, out_features
 linear = nn.Linear(10, 10)
@@ -218,3 +219,107 @@ print(linear.weight)
 print([k for k, v in conv.named_parameters()])
 
 #%% Make our own model!
+class NNet(nn.Module):
+    def __init__(self):
+        super(NNet, self).__init__()
+        
+        # 1 input channel to 20 feature maps of 5x5 kernel with stride 1.
+        self.conv1 = nn.Conv2d(1, 20, 5, 1)
+        
+        # 20 input channels to 50 feature maps of 5x5 kernel with stride 1.
+        self.conv2 = nn.Conv2d(20, 50, 5, 1)
+        
+        # Fully connected of final 4x4 image to 500 features
+        self.fc1 = nn.Linear(4*4*50, 500)
+        
+        # From 500 to 10 classes
+        self.fc2 = nn.Linear(500, 10)
+        
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.max_pool2d(x, 2, 2)
+        x = F.relu(self.conv2(x))
+        x = F.max_pool2d(x, 2, 2)
+        x = x.view(-1, 4*4*50)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        
+        return F.log_softmax(x, dim=1)
+    
+# Initialize the model
+model = NNet()
+
+# Optimizer
+import torch.optim as optim
+# Initialize the modelalize with model params
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# Full train and test loops
+import tqdm
+
+def train(model, train_loader, optimizer, epoch):
+    # For things like dropout
+    model.train()
+    
+    # Avg loss
+    total_loss = 0
+    
+    # Iterate through dataset
+    for data, target in tqdm.tqdm(train_loader):
+        # Zero grad
+        optimizer.zero_grad()
+        
+        # Forward pass
+        output = model(data)
+        
+        # Negative log likelihood loss func
+        loss = F.nll_loss(output, target)
+        
+        # Backward pass
+        loss.backward()
+        total_loss += loss.item()
+        
+        # Update
+        optimizer.step()
+        
+    # Print average loss
+    print("Train Epoch: {}\t Loss: {:.6f}".format(epoch, total_loss/len(train_loader)))
+    
+def test(model, test_loader):
+    model.eval()
+    
+    test_loss = 0
+    correct = 0
+    
+    with torch.no_grad():
+        for data, target in test_loader:
+            output = model(data)
+            test_loss += F.nll_loss(output, target, reduction='sum').item()     # Sum up batch loss
+            pred = output.argmax(dim=1, keepdim=True)   # Get the index of the max log-probabiity
+            
+            correct += pred.eq(target.view_as(pred)).sum().item()
+            
+            test_loss /= len(test_loader.dataset)
+            
+            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'\
+                  .format(test_loss, correct, len(test_loader.dataset), \
+                          100. * correct/len(test_loader.dataset)))
+            
+# Time to run MNIST
+from torchvision import datasets, transforms
+
+# See the torch Dataloader for more details
+train_loader = torch.utils.data.DataLoader(
+        datasets.MNIST('../data', train=True, download=True,
+                       transform=transforms.Compose([
+                               transforms.ToTensor(),
+                               transforms.Normalize((0.1307,), (0.3081,))])),
+        batch_size=32, shuffle=True)
+    
+test_loader = torch.utils.data.DataLoader(
+    datasets.MNIST('../data', train=False,
+                   transform=transforms.Compose([
+                       transforms.ToTensor(),
+                       transforms.Normalize((0.1307,), (0.3081,))
+                   ])),
+    batch_size=32, shuffle=True)
