@@ -11,11 +11,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Data points
-x = np.array([[-4,2],[-2,1],[-1,-1],[2,2],[1,-2]])
+x = np.array([[0,0],[2,0],[3,0],[0,2],[2,2],[5,1],[5,2],[2,4],[4,4],[5,5]])
+#x = np.array([[-4,2],[-2,1],[-1,-1],[2,2],[1,-2]])
 #x = np.array([[1,0],[-1,10],[-1,-1]])
 
 # Labels
-y = np.array([[1],[1],[-1],[-1],[-1]])
+y = np.array([[-1],[-1],[-1],[-1],[-1],[1],[1],[1],[1],[1]])
+#y = np.array([[1],[1],[-1],[-1],[-1]])
 #y = np.array([[-1],[1],[1]])
 
 # Plot data
@@ -33,8 +35,8 @@ m = x.shape[1]
 T = 10
 
 # Initialize parameter vector and offset
-theta = np.array([[0],[0]])
-theta0 = 0.0
+theta = np.array([[1],[1]])
+theta0 = -5
 
 # Tolerance for floating point errors
 eps = 1e-8
@@ -63,6 +65,9 @@ for t in range(T):
 print("Total number of misclassifications:", mistakes)
 
 # Plot the decision boundary
-x_line = np.linspace(-5,5,100)
+x_line = np.linspace(-1,6,100)
 y_line = (-theta0 - theta[0]*x_line)/theta[1]
-plt.plot(x_line, y_line, 'k-', linewidth = 2)
+y_line2 = (18 - 4*x_line)/4
+plt.plot(x_line, y_line, 'k-', linewidth = 2, label = 'Max. Margin Separator')
+plt.plot(x_line, y_line2, 'g--', linewidth = 1, label = 'Perceptron Solution')
+plt.legend()
