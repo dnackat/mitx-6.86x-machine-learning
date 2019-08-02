@@ -28,7 +28,7 @@ n = x.shape[0]
 m = x.shape[1]
 
 # No. of iterations
-T = 10
+T = 100
 
 # Initialize alphas to zero
 alphas = np.zeros((n,1))
@@ -66,7 +66,6 @@ def quad_kernel(x):
 
 # Kernel matrix for our case
 indices = np.random.permutation(len(x))
-np.random.shuffle(indices)
 x = x[indices,:]
 y = y[indices]
 K = kernel_matrix(x,x)
@@ -75,7 +74,7 @@ K = kernel_matrix(x,x)
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
-        agreement = float(y[i]*np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0))
+        agreement = float(y[i]*(np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0) + theta0))
         if abs(agreement) < eps or agreement < 0.0:
             alphas[i] = alphas[i] + 1
             theta0 = theta0 + y[i]
@@ -93,14 +92,15 @@ for i in range(n):
     theta = theta + alphas[i]*y[i]*quad_kernel(x[i,:])
     #theta0 = theta0 + float(alphas[i]*y[i])
 
-print("theta0=", theta0)
-print("theta=", theta)
+print("theta0 =", theta0.item())
+print("theta = [{:.2f},{:.2f},{:.2f}]".format(theta[0,0], theta[1,0], theta[2,0]))
 
 for i in range(n):
-    if theta.T.dot(quad_kernel(x[i,:])) + theta0 > 0.0:
-        print("PASS")
+    agreement = float(y[i]*(np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0) + theta0))
+    if abs(agreement) < eps or agreement < 0.0:
+        print("FAIL:\t", x[i,:])
     else:
-        print("FAIL")
+        print("PASS:\t", x[i,:])
 
 def decision_boundary(x, theta, theta0):
     return theta.T.dot(quad_kernel(x)) + theta0
