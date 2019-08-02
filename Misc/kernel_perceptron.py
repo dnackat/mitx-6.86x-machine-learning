@@ -71,12 +71,14 @@ y = y[indices]
 K = kernel_matrix(x,x)
 
 # Start kernel perceptron loop
+mistakes = np.zeros((n,1))
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
         agreement = float(y[i]*(np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0) + theta0))
         if abs(agreement) < eps or agreement < 0.0:
             alphas[i] = alphas[i] + 1
+            mistakes[i] += 1
             theta0 = theta0 + y[i]
         else:
             counter += 1
@@ -86,17 +88,27 @@ for t in range(T):
         print("No. of iteration loops through the dataset:", t+1)
         break
 
+# Initialize theta vector
 theta = np.zeros((3,1))
 
+# Calculate theta from calculated alphas
 for i in range(n):
     theta = theta + alphas[i]*y[i]*quad_kernel(x[i,:])
     #theta0 = theta0 + float(alphas[i]*y[i])
 
 print("theta0 =", theta0.item())
-print("theta = [{:.2f},{:.2f},{:.2f}]".format(theta[0,0], theta[1,0], theta[2,0]))
+print("theta = [{:.2f}, {:.2f}, {:.2f}]".format(theta[0,0], theta[1,0], theta[2,0]))
+print("----------------------------------------------------------------------")
 
+print("=== Mistake Counts ===")
 for i in range(n):
-    agreement = float(y[i]*(np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0) + theta0))
+    print(x[i,:],":\t",mistakes[i].item())
+
+print("----------------------------------------------------------------------")
+print("=== Classification Status ===")
+for i in range(n):
+    #agreement = float(y[i]*(np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0) + theta0))
+    agreement = float(y[i]*(theta.T.dot(quad_kernel(x[i,:])) + theta0))
     if abs(agreement) < eps or agreement < 0.0:
         print("FAIL:\t", x[i,:])
     else:
