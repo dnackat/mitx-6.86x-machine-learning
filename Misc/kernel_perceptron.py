@@ -79,8 +79,7 @@ for t in range(T):
         for j in range(n):
             agreement = agreement + alphas[j]*y[j]*K[j,i]
         agreement = y[i]*(agreement + theta0)
-        #agreement = float(y[i]*(np.sum(alphas.dot(y.T).dot(K[:,i]), axis=0) + theta0))
-        #agreement = float(y[i]*(y.T.dot(K[:,i]) + theta0))
+        
         if abs(agreement) < eps or agreement < 0.0:
             alphas[i] = alphas[i] + 1
             theta0 = theta0 + y[i]
@@ -100,7 +99,7 @@ theta = np.zeros((3,1))
 for i in range(n):
     theta = theta + alphas[i]*y[i]*quad_kernel(x[i,:])
     #theta = theta + y[i]*quad_kernel(x[i,:])
-    theta0 = theta0 + alphas[i]*y[i]
+    #theta0 = theta0 + alphas[i]*y[i]
 
 print("theta0 =", theta0.item())
 print("theta = [{:.2f}, {:.2f}, {:.2f}]".format(theta[0,0], theta[1,0], theta[2,0]))
@@ -123,9 +122,9 @@ for i in range(n):
 def decision_boundary(x, theta, theta0):
     return theta.T.dot(quad_kernel(x)) + theta0
 
-xx = np.vstack((np.linspace(-1,6,100), np.linspace(-1,6,100)))
-xx = xx.T
-print(xx.shape)
-a = quad_kernel(xx)
-print(a.shape)
-#ax.contour(decision_boundary(xx, theta, theta0))
+#xx = np.vstack((np.linspace(-1,6,100), np.linspace(-1,6,100)))
+#xx = xx.T
+#print(xx.shape)
+#a = quad_kernel(xx)
+#print(a.shape)
+#ax.contour(decision_boundary(xx, theta, theta0), levels=[0])
