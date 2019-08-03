@@ -62,9 +62,24 @@ def quad_kernel(x):
         return np.array([[k1],[k12],[k2]])
 
 # Kernel matrix for our case
-#indices = np.random.permutation(len(x))
-#x = x[indices,:]
-#y = y[indices]
+def shuffle(x, y, req='no'):
+    """ Shuffles indices of data points to alter the order in which kernel
+        perceptron algorithm runs through the data. 
+        Inputs:
+            Data (x and y)
+            req: if 'yes', indices of x and y are randomly permuted; 
+                 if 'no', x and y are returned as is.
+        Returns: x and y
+    """
+    if req == 'yes':
+       indices = np.random.permutation(len(x))
+       x = x[indices,:]
+       y = y[indices]
+       return x, y
+    else:
+        return x, y
+
+x, y = shuffle(x, y, 'no')
 K = kernel_matrix(x,x)
 
 # Start kernel perceptron loop
@@ -110,31 +125,45 @@ for i in range(n):
     else:
         print("PASS:\t", x[i,:])
 
-def decision_boundary(x, y, theta, theta0):
+def decision_boundary(x, y, theta, theta0, space='orig'):
     """
-    Plots the decision boundary in original x-space. 
+    Computed the decision contour in original x-space. 
     
-    Input: x, y generated from np.meshgrid
+    Inputs: 
+        x, y generated from np.meshgrid
+        space in which to operate: original x-space (orig) or feature space (feature)
     Returns: Decision contour, theta.T.Phi(x) + theta0 
-    (set levels = 0 in plot to get decision boundary)
     """
-    return theta[0]*x**2 + theta[1]*np.sqrt(2)*x*y + theta[2]*y**2  + theta0
+    if space == 'feature':
+        return (-theta0 - theta[0]*x - theta[1]*y)/theta[2]
+    else:
+        return theta[0]*x**2 + theta[1]*np.sqrt(2)*x*y + theta[2]*y**2  + theta0
 
 # Plot in feature space
 def plot_feature_space(theta, theta0):
+    """
+    Plots decision boundary in the transformed feature space.
+    Inputs: 
+        Trained parameter vector theta and offset theta0
+    Returns: A 3D plot of the decision boundary along with the data points.
+    """
     colors = ['r' if y == 1 else 'b' for y in y]
-    fig = plt.figure()
+    
+    fig = plt.figure(figsize=(8,8))
     ax = Axes3D(fig)
     pts = quad_kernel(x).T  # Coordinates in feature space
     ax.scatter3D(pts[:,0], pts[:,1], pts[:,2], s=30, c=colors)
+    
     xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
-    zz = (-theta0 - theta[0]*xx - theta[1]*yy)/theta[2]   # Linear decision boundary in feature space
+    zz = decision_boundary(xx, yy, theta, theta0, 'feature')   # Linear decision boundary in feature space
+    
     ax.plot_surface(xx, yy, zz, cmap='winter', alpha=0.2)
     ax.view_init(elev=10, azim=60)
-    ax.set_xlabel(r'$\Phi_1 = x_1^2$', fontsize=10)
-    ax.set_ylabel(r'$\Phi_2 = \sqrt{2}x_1x_2$', fontsize=10)
+    ax.set_xlabel(r'$\Phi_1 = x_1^2$', fontsize=12)
+    ax.set_ylabel(r'$\Phi_2 = \sqrt{2}x_1x_2$', fontsize=12)
     #ax.zaxis.set_rotate_label(False) 
-    ax.set_zlabel(r'$\Phi_3 = x_2^2$', fontsize=10)
+    ax.set_zlabel(r'$\Phi_3 = x_2^2$', fontsize=12)
+    ax.set_title("Separating hyperplane in feature ($\Phi$-) space", fontsize=20)
 
 # Plot decision boundary in original space
 def plot_decision_boundary(theta, theta0, style='line'):
@@ -142,29 +171,35 @@ def plot_decision_boundary(theta, theta0, style='line'):
     Plots decision boundary in the original x-space.
     Inputs: 
         Trained parameter vector theta and offset theta0
-        Cntour style: line or filled (levels = -1, 0, 1)
-    Returns: A plot of the decision boundary.
+        Contour style: line or filled (levels = -1, 0, 1)
+    Returns: A plot of the decision boundary along with the data points.
     """
     
     colors = ['r' if y == 1 else 'b' for y in y]
+    
     f, ax = plt.subplots(figsize=(8, 8))
     ax.scatter(x[:,0], x[:,1], s=40, c=colors)
     xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
     z = decision_boundary(xx, yy, theta, theta0)
+    
     if style == 'filled':
-        cs = ax.contourf(xx, yy, z, levels=[-1,0,1], 
-                         colors=['#808080', '#A0A0A0', '#C0C0C0'], 
+        cs = ax.contourf(xx, yy, z, levels=[-10,-5,0,5,10], 
+                         colors = ['purple','cyan','orange','magenta'], 
                          extend='both', alpha=0.2)
         cs.cmap.set_over('red')
         cs.cmap.set_under('blue')
-        cs.clabel([-1,0,1], fontsize=10)
+        cs.clabel(cs.levels, inline=1, fontsize=10, colors='black', rightside_up=True)
         cs.changed()
+        ax.set_title("Decision bounday in x-space (contour level = 0)", fontsize=20)
     else:
         cs = ax.contour(xx, yy, z, levels=[-10,-5,0,5,10], cmap='winter', 
                         alpha=0.5, linewidths=[1,1,2,1,1], 
                         linestyles=['dashed','dashed','solid','dashed','dashed'])
-        cs.clabel(cs.levels,inline=1,fontsize=10)
+        cs.clabel(cs.levels, inline=1, fontsize=10)
+        ax.set_title("Decision bounday in x-space (solid line)", fontsize=20)
+    
     ax.set_xlabel(r'$x_1$', fontsize=20)
     ax.set_ylabel(r'$x_2$', fontsize=20)
     
 plot_decision_boundary(theta, theta0, 'line')
+plot_feature_space(theta, theta0)
