@@ -183,6 +183,7 @@ def plot_decision_boundary(theta, theta0, style='line'):
     z = decision_boundary(xx, yy, theta, theta0)
     
     if style == 'filled':
+        # Filled contour
         cs = ax.contourf(xx, yy, z, levels=[-10,-5,0,5,10], 
                          colors = ['purple','cyan','orange','magenta'], 
                          extend='both', alpha=0.2)
@@ -192,6 +193,7 @@ def plot_decision_boundary(theta, theta0, style='line'):
         cs.changed()
         ax.set_title("Decision bounday in x-space (contour level = 0)", fontsize=20)
     else:
+        # Contour line
         cs = ax.contour(xx, yy, z, levels=[-10,-5,0,5,10], cmap='winter', 
                         alpha=0.5, linewidths=[1,1,2,1,1], 
                         linestyles=['dashed','dashed','solid','dashed','dashed'])
