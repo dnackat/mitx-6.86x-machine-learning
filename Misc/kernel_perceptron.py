@@ -22,8 +22,6 @@ y = np.array([[1],[1],[-1],[1],[-1],[1],[-1],[-1],[1],[-1]])
 # Plot data
 colors = ['r' if y == 1 else 'b' for y in y]
 #f, ax = plt.subplots(figsize=(7, 7))
-fig = plt.figure()
-ax = Axes3D(fig)
 #ax.scatter(x[:,0], x[:,1], s=40, c=colors)
 
 # Number of examples
@@ -78,11 +76,7 @@ K = kernel_matrix(x,x)
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
-#        agreement = 0.0
-#        for j in range(n):
-#            agreement = agreement + alphas[j]*y[j]*K[j,i]
-#        agreement = y[i]*(agreement + theta0)
-        agreement = y[i]*(np.sum(alphas*y*(K[:,i].reshape(-1,1)), axis=0) + theta0)
+        agreement = y[i]*(np.sum(alphas*y*(K[:,i].reshape(-1,1))) + theta0)
         if abs(agreement) < eps or agreement < 0.0:
             alphas[i] = alphas[i] + 1
             theta0 = theta0 + y[i]
@@ -115,22 +109,28 @@ print("----------------------------------------------------------------------")
 print("=== Classification Status ===")
 
 for i in range(n):
-    agreement = float(y[i]*(theta.T.dot(quad_kernel(x[i,:])) + theta0))
+    agreement = (y[i]*(theta.T.dot(quad_kernel(x[i,:])) + theta0)).item()
     if abs(agreement) < eps or agreement < 0.0:
         print("FAIL:\t", x[i,:])
     else:
         print("PASS:\t", x[i,:])
 
 def decision_boundary(x, theta, theta0):
-    return np.sign(theta.T.dot(quad_kernel(x)) + theta0)
+    return theta.T.dot(quad_kernel(x)) + theta0
 
 # Plot in feature space
+fig = plt.figure()
+ax = Axes3D(fig)
 pts = quad_kernel(x).T
-ax.scatter3D(pts[:,0], pts[:,1], pts[:,2], s=40, c=colors)
+ax.scatter3D(pts[:,0], pts[:,1], pts[:,2], s=30, c=colors)
 xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
-zz = (-theta0 - theta[0]*xx - theta[1]*yy)/theta[2]
-ax.plot_surface(xx, yy, zz, alpha=0.2)
-ax.view_init(elev=30,azim=30)
+zz = (-theta0 - theta[0]*xx - theta[1]*yy)/theta[2]   # Linear decision boundary in feature space
+ax.plot_surface(xx, yy, zz, cmap='winter', alpha=0.2)
+ax.view_init(elev=10, azim=60)
+ax.set_xlabel(r'$\Phi_1 = x_1^2$', fontsize=10)
+ax.set_ylabel(r'$\Phi_2 = \sqrt{2}x_1x_2$', fontsize=10)
+#ax.zaxis.set_rotate_label(False) 
+ax.set_zlabel(r'$\Phi_3 = x_2^2$', fontsize=10)
 
 # Plot decision boundary
 #xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
