@@ -5,7 +5,7 @@ Created on Thu Aug  1 22:18:22 2019
 
 @author: dileepn
 
-Kernel Perceptron Algorithm: Toy Example
+Kernel Perceptron Algorithm: A Toy Example
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -72,10 +72,10 @@ def shuffle(x, y, req='no'):
         Returns: x and y
     """
     if req == 'yes':
-       indices = np.random.permutation(len(x))
-       x = x[indices,:]
-       y = y[indices]
-       return x, y
+        indices = np.random.permutation(len(x))
+        x = x[indices,:]
+        y = y[indices]
+        return x, y
     else:
         return x, y
 
@@ -127,11 +127,11 @@ for i in range(n):
 
 def decision_boundary(x, y, theta, theta0, space='orig'):
     """
-    Computed the decision contour in original x-space. 
+    Computes the decision contour in original x-space. 
     
     Inputs: 
         x, y generated from np.meshgrid
-        space in which to operate: original x-space (orig) or feature space (feature)
+        space in which to operate: original x-space ('orig') or feature space ('feature')
     Returns: Decision contour, theta.T.Phi(x) + theta0 
     """
     if space == 'feature':
@@ -163,7 +163,7 @@ def plot_feature_space(theta, theta0):
     ax.set_ylabel(r'$\Phi_2 = \sqrt{2}x_1x_2$', fontsize=12)
     #ax.zaxis.set_rotate_label(False) 
     ax.set_zlabel(r'$\Phi_3 = x_2^2$', fontsize=12)
-    ax.set_title("Separating hyperplane in feature ($\Phi$-) space", fontsize=20)
+    ax.set_title("Separating hyperplane in feature ($\Phi$) space", fontsize=20)
 
 # Plot decision boundary in original space
 def plot_decision_boundary(theta, theta0, style='line'):
@@ -171,7 +171,7 @@ def plot_decision_boundary(theta, theta0, style='line'):
     Plots decision boundary in the original x-space.
     Inputs: 
         Trained parameter vector theta and offset theta0
-        Contour style: line or filled (levels = -1, 0, 1)
+        Contour style: 'line' or 'filled' (levels = -1, 0, 1)
     Returns: A plot of the decision boundary along with the data points.
     """
     
