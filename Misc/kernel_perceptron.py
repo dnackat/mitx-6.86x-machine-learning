@@ -19,11 +19,6 @@ x = np.array([[5,2], [1,4], [2,0], [4,1], [3,3], [4,4], [1,1], [0,2], [5,5], [0,
 y = np.array([[1],[1],[-1],[1],[-1],[1],[-1],[-1],[1],[-1]])
 #y = np.array([[-1],[-1],[-1],[-1],[-1],[1],[1],[1],[1],[1]])
 
-# Plot data
-colors = ['r' if y == 1 else 'b' for y in y]
-#f, ax = plt.subplots(figsize=(7, 7))
-#ax.scatter(x[:,0], x[:,1], s=40, c=colors)
-
 # Number of examples
 n = x.shape[0]
 
@@ -115,26 +110,61 @@ for i in range(n):
     else:
         print("PASS:\t", x[i,:])
 
-def decision_boundary(x, theta, theta0):
-    return theta.T.dot(quad_kernel(x)) + theta0
+def decision_boundary(x, y, theta, theta0):
+    """
+    Plots the decision boundary in original x-space. 
+    
+    Input: x, y generated from np.meshgrid
+    Returns: Decision contour, theta.T.Phi(x) + theta0 
+    (set levels = 0 in plot to get decision boundary)
+    """
+    return theta[0]*x**2 + theta[1]*np.sqrt(2)*x*y + theta[2]*y**2  + theta0
 
 # Plot in feature space
-fig = plt.figure()
-ax = Axes3D(fig)
-pts = quad_kernel(x).T
-ax.scatter3D(pts[:,0], pts[:,1], pts[:,2], s=30, c=colors)
-xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
-zz = (-theta0 - theta[0]*xx - theta[1]*yy)/theta[2]   # Linear decision boundary in feature space
-ax.plot_surface(xx, yy, zz, cmap='winter', alpha=0.2)
-ax.view_init(elev=10, azim=60)
-ax.set_xlabel(r'$\Phi_1 = x_1^2$', fontsize=10)
-ax.set_ylabel(r'$\Phi_2 = \sqrt{2}x_1x_2$', fontsize=10)
-#ax.zaxis.set_rotate_label(False) 
-ax.set_zlabel(r'$\Phi_3 = x_2^2$', fontsize=10)
+def plot_feature_space(theta, theta0):
+    colors = ['r' if y == 1 else 'b' for y in y]
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    pts = quad_kernel(x).T  # Coordinates in feature space
+    ax.scatter3D(pts[:,0], pts[:,1], pts[:,2], s=30, c=colors)
+    xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
+    zz = (-theta0 - theta[0]*xx - theta[1]*yy)/theta[2]   # Linear decision boundary in feature space
+    ax.plot_surface(xx, yy, zz, cmap='winter', alpha=0.2)
+    ax.view_init(elev=10, azim=60)
+    ax.set_xlabel(r'$\Phi_1 = x_1^2$', fontsize=10)
+    ax.set_ylabel(r'$\Phi_2 = \sqrt{2}x_1x_2$', fontsize=10)
+    #ax.zaxis.set_rotate_label(False) 
+    ax.set_zlabel(r'$\Phi_3 = x_2^2$', fontsize=10)
 
-# Plot decision boundary
-#xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
-#xx = xx.reshape(-1,2)
-#z = decision_boundary(xx, theta, theta0)
-#z = z.T
-#ax.contour(xx, z, levels=[0])
+# Plot decision boundary in original space
+def plot_decision_boundary(theta, theta0, style='line'):
+    """
+    Plots decision boundary in the original x-space.
+    Inputs: 
+        Trained parameter vector theta and offset theta0
+        Cntour style: line or filled (levels = -1, 0, 1)
+    Returns: A plot of the decision boundary.
+    """
+    
+    colors = ['r' if y == 1 else 'b' for y in y]
+    f, ax = plt.subplots(figsize=(8, 8))
+    ax.scatter(x[:,0], x[:,1], s=40, c=colors)
+    xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
+    z = decision_boundary(xx, yy, theta, theta0)
+    if style == 'filled':
+        cs = ax.contourf(xx, yy, z, levels=[-1,0,1], 
+                         colors=['#808080', '#A0A0A0', '#C0C0C0'], 
+                         extend='both', alpha=0.2)
+        cs.cmap.set_over('red')
+        cs.cmap.set_under('blue')
+        cs.clabel([-1,0,1], fontsize=10)
+        cs.changed()
+    else:
+        cs = ax.contour(xx, yy, z, levels=[-10,-5,0,5,10], cmap='winter', 
+                        alpha=0.5, linewidths=[1,1,2,1,1], 
+                        linestyles=['dashed','dashed','solid','dashed','dashed'])
+        cs.clabel(cs.levels,inline=1,fontsize=10)
+    ax.set_xlabel(r'$x_1$', fontsize=20)
+    ax.set_ylabel(r'$x_2$', fontsize=20)
+    
+plot_decision_boundary(theta, theta0, 'line')
