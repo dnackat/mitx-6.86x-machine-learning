@@ -9,6 +9,7 @@ Kernel Perceptron Algorithm: Toy Example
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Data points
 x = np.array([[5,2], [1,4], [2,0], [4,1], [3,3], [4,4], [1,1], [0,2], [5,5], [0,0]])
@@ -20,8 +21,10 @@ y = np.array([[1],[1],[-1],[1],[-1],[1],[-1],[-1],[1],[-1]])
 
 # Plot data
 colors = ['r' if y == 1 else 'b' for y in y]
-f, ax = plt.subplots(figsize=(7, 7))
-ax.scatter(x[:,0], x[:,1], s=40, c=colors)
+#f, ax = plt.subplots(figsize=(7, 7))
+fig = plt.figure()
+ax = Axes3D(fig)
+#ax.scatter(x[:,0], x[:,1], s=40, c=colors)
 
 # Number of examples
 n = x.shape[0]
@@ -75,11 +78,11 @@ K = kernel_matrix(x,x)
 for t in range(T):
     counter = 0     # To check if all examples are classified correctly in loop
     for i in range(n):
-        agreement = 0.0
-        for j in range(n):
-            agreement = agreement + alphas[j]*y[j]*K[j,i]
-        agreement = y[i]*(agreement + theta0)
-        
+#        agreement = 0.0
+#        for j in range(n):
+#            agreement = agreement + alphas[j]*y[j]*K[j,i]
+#        agreement = y[i]*(agreement + theta0)
+        agreement = y[i]*(np.sum(alphas*y*(K[:,i].reshape(-1,1)), axis=0) + theta0)
         if abs(agreement) < eps or agreement < 0.0:
             alphas[i] = alphas[i] + 1
             theta0 = theta0 + y[i]
@@ -88,6 +91,7 @@ for t in range(T):
         
     # If all examples classified correctly, stop
     if counter == n:
+        print("--------------------------------------------------------------")
         print("No. of iteration loops through the dataset:", t+1)
         print("--------------------------------------------------------------")
         break
@@ -98,8 +102,6 @@ theta = np.zeros((3,1))
 # Calculate theta from calculated alphas
 for i in range(n):
     theta = theta + alphas[i]*y[i]*quad_kernel(x[i,:])
-    #theta = theta + y[i]*quad_kernel(x[i,:])
-    #theta0 = theta0 + alphas[i]*y[i]
 
 print("theta0 =", theta0.item())
 print("theta = [{:.2f}, {:.2f}, {:.2f}]".format(theta[0,0], theta[1,0], theta[2,0]))
@@ -120,11 +122,19 @@ for i in range(n):
         print("PASS:\t", x[i,:])
 
 def decision_boundary(x, theta, theta0):
-    return theta.T.dot(quad_kernel(x)) + theta0
+    return np.sign(theta.T.dot(quad_kernel(x)) + theta0)
 
-#xx = np.vstack((np.linspace(-1,6,100), np.linspace(-1,6,100)))
-#xx = xx.T
-#print(xx.shape)
-#a = quad_kernel(xx)
-#print(a.shape)
-#ax.contour(decision_boundary(xx, theta, theta0), levels=[0])
+# Plot in feature space
+pts = quad_kernel(x).T
+ax.scatter3D(pts[:,0], pts[:,1], pts[:,2], s=40, c=colors)
+xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
+zz = (-theta0 - theta[0]*xx - theta[1]*yy)/theta[2]
+ax.plot_surface(xx, yy, zz, alpha=0.2)
+ax.view_init(elev=30,azim=30)
+
+# Plot decision boundary
+#xx, yy = np.meshgrid(np.linspace(*ax.get_xlim()), np.linspace(*ax.get_ylim()))
+#xx = xx.reshape(-1,2)
+#z = decision_boundary(xx, theta, theta0)
+#z = z.T
+#ax.contour(xx, z, levels=[0])
