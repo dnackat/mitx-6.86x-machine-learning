@@ -4,3 +4,4 @@
 *.gz
 *.pt
 data/*
+.Rhi*
