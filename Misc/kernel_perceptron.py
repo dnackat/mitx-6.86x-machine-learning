@@ -196,7 +196,7 @@ def plot_decision_boundary(theta, theta0, style='line'):
         # Contour line
         cs = ax.contour(xx, yy, z, levels=[-10,-5,0,5,10], cmap='winter', 
                         alpha=0.5, linewidths=[1,1,2,1,1], 
-                        linestyles=['dashed','dashed','solid','dashed','dashed'])
+                        linestyles=['dashdot','dashed','solid','dashed','dashdot'])
         cs.clabel(cs.levels, inline=1, fontsize=10)
         ax.set_title("Decision bounday in x-space (solid line)", fontsize=20)
     
