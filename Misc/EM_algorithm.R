@@ -1,4 +1,4 @@
-# EM Algorithm
+# Toy EM Algorithm: 1-D data
 
 means <- c(-3, 2)
 vars <- c(4, 4)
