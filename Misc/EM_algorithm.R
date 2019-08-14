@@ -67,8 +67,7 @@ for (l in c(1:loops)) {
   }
   vars <- (1/(nj*d))*v
   
-  print("---------------------------------------------------------------------")
-  print(paste0("Iteration ", l))
+  print(paste0("--------------------- Iteration ", l, " ------------------------"))
   print("Revised prob. =")
   print(probs)
   print("Revised mean =")
@@ -81,6 +80,16 @@ for (l in c(1:loops)) {
   var1[[l]] <- vars[1]
   var2[[l]] <- vars[2]
 }
+
+# Plot means and variances with iterations
+par(mfrow = c(2, 2))
+plot(c(1:loops), mu1, type="l", col="red", xlab = "Iterations through the dataset", ylab = "Cluster 1 Mean")
+plot(c(1:loops), var1, type="l", col="green", xlab = "Iterations through the dataset", ylab = "Cluster 1 Variance")
+plot(c(1:loops), mu2, type="l", col="red", xlab = "Iterations through the dataset", ylab = "Cluster 2 Mean")
+plot(c(1:loops), var2, type="l", col="green", xlab = "Iterations through the dataset", ylab = "Cluster 2 Variance")
+
+plot(c(1:loops), var1, type="l", col="red", xlab = "Iterations through the dataset", ylab = "Cluster 1 Mean")
+
 
 ###################### HW5: EM algorithm calculations ############################
 
