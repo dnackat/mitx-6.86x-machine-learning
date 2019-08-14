@@ -11,12 +11,12 @@ cl_p <- matrix(data = 0, nrow = length(x), ncol = length(means)) # Matrix to sto
 
 
 ### Main loop ###
-var1 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-mu1 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-var2 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-mu2 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
 loops = 10
+var1 <- vector(mode = "list", length = loops)
+mu1 <- vector(mode = "list", length = loops)
+var2 <- vector(mode = "list", length = loops)
+mu2 <- vector(mode = "list", length = loops)
+
 for (l in c(1:loops)) { 
   # Normalizing constants
   norm <- c(0.0, 0.0, 0.0, 0.0, 0.0)
@@ -67,19 +67,22 @@ for (l in c(1:loops)) {
   }
   vars <- (1/(nj*d))*v
   
+  print("---------------------------------------------------------------------")
+  print(paste0("Iteration ", l))
   print("Revised prob. =")
-  probs
+  print(probs)
   print("Revised mean =")
   means
-  mu1[l] <- means[1]
-  mu2[l] <- means[2]
+  print(means)
   print("Revised variance =")
-  vars
-  var1[l] <- vars[1]
-  var2[l] <- vars[2]
+  print(vars)
+  mu1[[l]] <- means[1]
+  mu2[[l]] <- means[2]
+  var1[[l]] <- vars[1]
+  var2[[l]] <- vars[2]
 }
 
-#### HW5: EM algorithm calculations ####
+###################### HW5: EM algorithm calculations ############################
 
 ### Log-likelihood calc. with theta(0) ###
 x <- c(-1,0,4,5,6)
