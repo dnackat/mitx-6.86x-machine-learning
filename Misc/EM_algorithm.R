@@ -88,8 +88,6 @@ plot(c(1:loops), var1, type="l", col="green", xlab = "Iterations through the dat
 plot(c(1:loops), mu2, type="l", col="red", xlab = "Iterations through the dataset", ylab = "Cluster 2 Mean")
 plot(c(1:loops), var2, type="l", col="green", xlab = "Iterations through the dataset", ylab = "Cluster 2 Variance")
 
-plot(c(1:loops), var1, type="l", col="red", xlab = "Iterations through the dataset", ylab = "Cluster 1 Mean")
-
 
 ###################### HW5: EM algorithm calculations ############################
 
