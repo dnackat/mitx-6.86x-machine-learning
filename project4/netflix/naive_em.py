@@ -90,4 +90,25 @@ def run(X: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         float: log-likelihood of the current assignment
     """
+    
+    old_log_lh = 0.0
+    new_log_lh = 0.0  # Keep track of log likelihood to check convergence
+    
+    # Start the main loop
+    counter = 0     # Counter to keep track of iterations
+    while True:
+        counter += 1
 
+        # E-step
+        post, new_log_lh = estep(X, mixture)
+        
+        # M-step
+        mixture = mstep(X, post)
+        
+        # Check convergence
+        if counter > 1 and (new_log_lh - old_log_lh <= 1e-6*np.abs(new_log_lh)):
+            break
+        else:        
+            old_log_lh = new_log_lh
+            
+    return mixture, post, new_log_lh
