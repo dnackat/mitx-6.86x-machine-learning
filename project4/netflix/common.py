@@ -98,4 +98,9 @@ def bic(X: np.ndarray, mixture: GaussianMixture,
     Returns:
         float: the BIC for this mixture
     """
-    raise NotImplementedError
+    # Number of examples
+    n = X.shape[0]
+    
+    # Number of adjustable params = total params - 1 (last prob = 1 - sum(other probs))
+    
+    
