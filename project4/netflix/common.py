@@ -102,5 +102,16 @@ def bic(X: np.ndarray, mixture: GaussianMixture,
     n = X.shape[0]
     
     # Number of adjustable params = total params - 1 (last prob = 1 - sum(other probs))
+    p = 0
+    for i in range(len(mixture)):
+        if i == 0:
+            p += mixture[i].shape[0] * mixture[i].shape[1]  # For means: K times d
+        else:
+            p += mixture[i].shape[0]    # Other params: just add K
+    p = p - 1
     
+    # BIC: log_lh - (1/2)*p*log(n)
+    bic = log_likelihood - (p*np.log(n))/2.0
+    
+    return bic
     
