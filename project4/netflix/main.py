@@ -26,6 +26,9 @@ mixtures_EM = [0, 0, 0, 0, 0]
 posts_kMeans = [0, 0, 0, 0, 0]
 posts_EM = [0, 0, 0, 0, 0]
 
+# BIC score of cluster
+bic = [0., 0., 0., 0.]
+
 for k in range(len(K)):
     for i in range(len(seeds)):
         
@@ -38,22 +41,31 @@ for k in range(len(K)):
         naive_em.run(X, *common.init(X, K[k], seeds[i]))
     
     # Print lowest cost
-    print("Lowest cost for cluster", K[k], "using kMeans is:", np.min(costs_kMeans))
-    print("Highest log likelihood for cluster", K[k], "using EM is:", np.max(costs_EM))
+    print("=============== Clusters:", k+1, "======================")
+    print("Lowest cost using kMeans is:", np.min(costs_kMeans))
+    print("Highest log likelihood using EM is:", np.max(costs_EM))
     
     # Save best seed for plotting
     best_seed_kMeans[k] = np.argmin(costs_kMeans)
-    best_seed_kMeans[k] = np.argmax(costs_EM) 
+    best_seed_EM[k] = np.argmax(costs_EM) 
     
     # Plot kMeans and EM results
-    common.plot(X, 
-                mixtures_kMeans[best_seed_kMeans[k]], 
-                posts_kMeans[best_seed_kMeans[k]], 
-                title="kMeans")
-
-    common.plot(X, 
-                mixtures_EM[best_seed_EM[k]], 
-                posts_EM[best_seed_EM[k]], 
-                title="EM") 
-
+#    common.plot(X, 
+#                mixtures_kMeans[best_seed_kMeans[k]], 
+#                posts_kMeans[best_seed_kMeans[k]], 
+#                title="kMeans")
+#
+#    common.plot(X, 
+#                mixtures_EM[best_seed_EM[k]], 
+#                posts_EM[best_seed_EM[k]], 
+#                title="EM") 
+    
+    #BIC score for EM
+    bic[k] = common.bic(X, mixtures_EM[best_seed_EM[k]], np.max(costs_EM))
+    
+# Print the best K based on BIC
+print("=====================================")
+print("Best K is:", np.argmax(bic)+1)
+print("BIC for the best K is:", np.max(bic))
+ 
 ########## End: kMeans vs EM #############
