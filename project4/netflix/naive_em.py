@@ -22,13 +22,26 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     mu, var, pi = mixture  # Unpack mixture tuple
     K = mu.shape[0]
     
-    post = np.zeros((n, K), dtype=np.float64)   # Array to hold posterior probs
+    post = np.zeros((n, K), dtype=np.float64)   # Array to hold posterior probs and normal matrix
     
     # Compute normal dist. matrix: (N, K)
     pre_exp = (2*np.pi*var)**(d/2)
     
-    for i in range(d):
-        
+    for i in range(n):  # Use single loop to complete Normal matrix: faster than broadcasting in 3D
+        dist = X[i,:] - mu     # Compute difference: will be (K,d) for each n
+        norm = np.sum(dist**2, axis=1)  # Norm: will be (K,) for each n
+        post[i,:] = np.exp(-norm/(2*var))   # This is the exponent term of normal
+    
+    post = post/pre_exp     # Final Normal matrix: will be (n, K)
+
+    numerator = post*pi
+    denominator = np.sum(numerator, axis=1).reshape(-1,1) # This is the vector p(x;theta)
+ 
+    post = numerator/denominator    # This is the matrix of posterior probs p(j|i)
+    
+    log_lh = np.sum(np.log(denominator), axis=0).item()    # Log-likelihood
+    
+    return post, log_lh
 
 def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     """M-step: Updates the gaussian mixture by maximizing the log-likelihood
