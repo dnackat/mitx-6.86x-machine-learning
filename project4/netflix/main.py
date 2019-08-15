@@ -6,7 +6,7 @@ import em
 
 X = np.loadtxt("toy_data.txt")
 
-# kMeans vs EM
+########## Begin: kMeans vs EM #############
 K = [1, 2, 3, 4]    # Clusters to try
 seeds = [0, 1, 2, 3, 4]     # Seeds to try
 
@@ -38,11 +38,22 @@ for k in range(len(K)):
         naive_em.run(X, *common.init(X, K[k], seeds[i]))
     
     # Print lowest cost
-    print("Lowest cost for cluster using kMeans", K[k], "is:", np.min(costs_kMeans))
+    print("Lowest cost for cluster", K[k], "using kMeans is:", np.min(costs_kMeans))
+    print("Highest log likelihood for cluster", K[k], "using EM is:", np.max(costs_EM))
     
     # Save best seed for plotting
     best_seed_kMeans[k] = np.argmin(costs_kMeans)
+    best_seed_kMeans[k] = np.argmax(costs_EM) 
     
-    
-    # Plot for cluster
-    common.plot(X, mixtures[best_seed[k]], posts[best_seed[k]], title="Cluster plot")
+    # Plot kMeans and EM results
+    common.plot(X, 
+                mixtures_kMeans[best_seed_kMeans[k]], 
+                posts_kMeans[best_seed_kMeans[k]], 
+                title="kMeans")
+
+    common.plot(X, 
+                mixtures_EM[best_seed_EM[k]], 
+                posts_EM[best_seed_EM[k]], 
+                title="EM") 
+
+########## End: kMeans vs EM #############
