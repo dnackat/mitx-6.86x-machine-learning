@@ -17,8 +17,18 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
             for all components for all examples
         float: log-likelihood of the assignment
     """
-    raise NotImplementedError
-
+    n = X.shape[0]
+    d = X.shape[1]
+    mu, var, pi = mixture  # Unpack mixture tuple
+    K = mu.shape[0]
+    
+    post = np.zeros((n, K), dtype=np.float64)   # Array to hold posterior probs
+    
+    # Compute normal dist. matrix: (N, K)
+    pre_exp = (2*np.pi*var)**(d/2)
+    
+    for i in range(d):
+        
 
 def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     """M-step: Updates the gaussian mixture by maximizing the log-likelihood
