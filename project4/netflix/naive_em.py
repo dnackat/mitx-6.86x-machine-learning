@@ -55,8 +55,25 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    raise NotImplementedError
-
+    n = X.shape[0]
+    d = X.shape[1]
+    K = post.shape[1]
+    
+    nj = np.sum(post, axis=0)   # shape is (K, )
+    
+    pi = nj/n   # Cluster probs; shape is (K, )
+    
+    mu = (post.T @ X)/nj.reshape(-1,1)  # Revised means; shape is (K,d)
+    
+    norms = np.zeros((n, K), dtype=np.float64)   # Matrix to hold all the norms: (n,K)
+    
+    for i in range(n):
+        dist = X[i,:] - mu
+        norms[i,:] = np.sum(dist**2, axis=1)
+        
+    var = np.sum(post*norms, axis=0)/(nj*d)     # Revised variance; shape is (K, )
+    
+    return GaussianMixture(mu, var, pi)
 
 def run(X: np.ndarray, mixture: GaussianMixture,
         post: np.ndarray) -> Tuple[GaussianMixture, np.ndarray, float]:
@@ -73,4 +90,4 @@ def run(X: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         float: log-likelihood of the current assignment
     """
-    raise NotImplementedError
+
