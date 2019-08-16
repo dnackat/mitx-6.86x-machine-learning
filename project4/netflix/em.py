@@ -18,9 +18,11 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
         float: log-likelihood of the assignment
 
     """
-    raise NotImplementedError
-
-
+    n, d = X.shape
+    mu, var, pi = mixture   # Unpack mixture tuple
+    K = mu.shape[0]
+    
+    
 
 def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
           min_variance: float = .25) -> GaussianMixture:
