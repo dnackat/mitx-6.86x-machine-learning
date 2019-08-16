@@ -68,16 +68,39 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
         GaussianMixture: the new gaussian mixture
     """
     n, d = X.shape
+    mu_old, _, _ = mixture
+    K = mu_old.shape[0]
     
     # Calculate revised pi(j): same expression as in the naive case
-    pi = np.sum(post, axis=0)/n
+    pi_rev = np.sum(post, axis=0)/n
     
     # Create delta matrix indicating where X is non-zero
     delta = X.astype(bool).astype(int)
     
     # Update means only when sum_u(p(j|u)*delta(l,Cu)) >= 1
+    denom = post.T @ delta # Denominator (K,d): Only include dims that have information
+    numer = post.T @ X  # Numerator (K,d)
+    mu_rev = numer/denom    
     
-
+    # Only update means where denom >= 1
+    mu_rev[denom < 1] = mu_old[denom < 1]   # Revised means
+    
+    # Update variances
+    denom_var = np.sum(post*np.sum(delta, axis=1).reshape(-1,1), axis=0) # Shape: (K,)
+    
+    # Norm matrix for variance calc
+    norms = np.zeros((n, K), dtype=np.float64)
+    
+    for i in range(n):
+        # For each user pick only columns that have ratings
+        Cu_indices = X[i,:] != 0
+        diff = X[i, Cu_indices] - mu_rev[:, Cu_indices]    # This will be (K,|Cu|)
+        norms[i,:] = np.sum(diff**2, axis=1)  # This will be (K,)
+        
+    var_rev = np.sum(post*norms, axis=0)/denom_var  
+    var_rev = np.maximum(var_rev, min_variance) # Revised var: if var(j) < 0.25, set it = 0.25
+    
+    return GaussianMixture(mu_rev, var_rev, pi_rev)
 
 def run(X: np.ndarray, mixture: GaussianMixture,
         post: np.ndarray) -> Tuple[GaussianMixture, np.ndarray, float]:
