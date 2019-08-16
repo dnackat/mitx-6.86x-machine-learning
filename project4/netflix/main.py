@@ -6,7 +6,7 @@ import em
 
 X = np.loadtxt("toy_data.txt")
 
-########## Begin: kMeans vs EM #############
+########## Begin: kMeans vs EM (and BIC) #############
 K = [1, 2, 3, 4]    # Clusters to try
 seeds = [0, 1, 2, 3, 4]     # Seeds to try
 
@@ -50,22 +50,22 @@ for k in range(len(K)):
     best_seed_EM[k] = np.argmax(costs_EM) 
     
     # Plot kMeans and EM results
-#    common.plot(X, 
-#                mixtures_kMeans[best_seed_kMeans[k]], 
-#                posts_kMeans[best_seed_kMeans[k]], 
-#                title="kMeans")
-#
-#    common.plot(X, 
-#                mixtures_EM[best_seed_EM[k]], 
-#                posts_EM[best_seed_EM[k]], 
-#                title="EM") 
+    common.plot(X, 
+                mixtures_kMeans[best_seed_kMeans[k]], 
+                posts_kMeans[best_seed_kMeans[k]], 
+                title="kMeans")
+
+    common.plot(X, 
+                mixtures_EM[best_seed_EM[k]], 
+                posts_EM[best_seed_EM[k]], 
+                title="EM") 
     
     #BIC score for EM
     bic[k] = common.bic(X, mixtures_EM[best_seed_EM[k]], np.max(costs_EM))
     
 # Print the best K based on BIC
-print("=====================================")
+print("================= BIC ====================")
 print("Best K is:", np.argmax(bic)+1)
 print("BIC for the best K is:", np.max(bic))
  
-########## End: kMeans vs EM #############
+########## End: kMeans vs EM (and BIC) #############
