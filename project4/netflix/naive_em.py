@@ -21,18 +21,18 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     mu, var, pi = mixture  # Unpack mixture tuple
     K = mu.shape[0]
     
-    post = np.zeros((n, K), dtype=np.float64)   # Array to hold posterior probs and normal matrix
+#    post = np.zeros((n, K), dtype=np.float64)   # Array to hold posterior probs and normal matrix
     
     # Compute normal dist. matrix: (N, K)
     pre_exp = (2*np.pi*var)**(d/2)
     
     # Calc exponent term: norm matrix/(2*variance)
-#    post = (np.linalg.norm(X - mu[:,None], ord=2, axis=2)**2).T    # Vectorized version
-#    post = np.exp(-post/(2*var))
-    for i in range(n):  # Use single loop to complete Normal matrix: faster than broadcasting in 3D
-        dist = X[i,:] - mu     # Compute difference: will be (K,d) for each n
-        norm = np.sum(dist**2, axis=1)  # Norm: will be (K,) for each n
-        post[i,:] = np.exp(-norm/(2*var))   # This is the exponent term of normal
+    post = np.linalg.norm(X[:,None] - mu, ord=2, axis=2)**2   # Vectorized version
+    post = np.exp(-post/(2*var))
+#    for i in range(n):  # Use single loop to complete Normal matrix: faster than broadcasting in 3D
+#        dist = X[i,:] - mu     # Compute difference: will be (K,d) for each n
+#        norm = np.sum(dist**2, axis=1)  # Norm: will be (K,) for each n
+#        post[i,:] = np.exp(-norm/(2*var))   # This is the exponent term of normal
     
     post = post/pre_exp     # Final Normal matrix: will be (n, K)
 
@@ -67,11 +67,11 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     
     mu = (post.T @ X)/nj.reshape(-1,1)  # Revised means; shape is (K,d)
     
-    norms = np.zeros((n, K), dtype=np.float64)   # Matrix to hold all the norms: (n,K)
- #  norms = (np.linalg.norm(X[:, None] - mu, ord=2, axis=2)**2)    # Vectorized version
-    for i in range(n):
-        dist = X[i,:] - mu
-        norms[i,:] = np.sum(dist**2, axis=1)
+#    norms = np.zeros((n, K), dtype=np.float64)   # Matrix to hold all the norms: (n,K)
+    norms = np.linalg.norm(X[:, None] - mu, ord=2, axis=2)**2    # Vectorized version
+#    for i in range(n):
+#        dist = X[i,:] - mu
+#        norms[i,:] = np.sum(dist**2, axis=1)
         
     var = np.sum(post*norms, axis=0)/(nj*d)     # Revised variance; shape is (K, )
     
