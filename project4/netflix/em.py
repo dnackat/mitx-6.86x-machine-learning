@@ -142,4 +142,11 @@ def fill_matrix(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
     Returns
         np.ndarray: a (n, d) array with completed data
     """
-    raise NotImplementedError
+    X_pred = X.copy()
+    mu, _, _ = mixture
+    
+    post, _ = estep(X, mixture)
+    
+    X_pred[X == 0] = (post @ mu)[X == 0]
+    
+    return X_pred
