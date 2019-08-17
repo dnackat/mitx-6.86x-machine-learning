@@ -45,7 +45,7 @@ def rbf_kernel(X, Y, gamma):
     n = X.shape[0]
     m = Y.shape[0]
 
-# Naive version with for loops   
+    # Naive version with for loops   
     kernel_matrix = np.zeros((n,m))
     
     # Double for loops 
@@ -60,14 +60,9 @@ def rbf_kernel(X, Y, gamma):
         kernel_matrix[i,:] = np.exp(-gamma*b)
 
     # Vectorized version (runs slower than the single loop version)
-#    XTX = np.sum(X**2, axis=1)
-#    X_bcast = XTX[:, np.newaxis]     # Broadcast (n,) to (n,1)
-#    YTY = np.sum(Y**2, axis=1)
-#    Y_bcast = YTY[np.newaxis, :]     # Broadcast (m,) to (1,m)
-#    # X_bcast + Y_bcast now has the shape (n,m)
-#    XdiffY = (X_bcast + Y_bcast) - 2*X.dot(Y.T)     # ||X-Y||^2 exapnsion
-#    
-#    kernel_matrix = np.exp(-gamma*XdiffY)
+#    kernel_matrix = np.linalg.norm((X[:,None] - Y), ord=2, axis=2)**2
+#   
+#    kernel_matrix = np.exp(-gamma*kernel_matrix)
     
     return kernel_matrix
 # pragma: coderesponse end
