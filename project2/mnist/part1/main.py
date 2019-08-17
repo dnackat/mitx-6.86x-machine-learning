@@ -224,8 +224,8 @@ import time
 # Start time
 start_time = time.time()
 
-n = 1000
-n_test = 200
+n = 5000
+n_test = 2000
 k = 10  # number of categories
 indices_train = np.random.permutation(n)
 indices_test = np.random.permutation(n_test)
