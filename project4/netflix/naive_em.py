@@ -17,8 +17,7 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
             for all components for all examples
         float: log-likelihood of the assignment
     """
-    n = X.shape[0]
-    d = X.shape[1]
+    n, d = X.shape
     mu, var, pi = mixture  # Unpack mixture tuple
     K = mu.shape[0]
     
@@ -27,6 +26,9 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     # Compute normal dist. matrix: (N, K)
     pre_exp = (2*np.pi*var)**(d/2)
     
+    # Calc exponent term: norm matrix/(2*variance)
+#    post = (np.linalg.norm(X - mu[:,None], ord=2, axis=2)**2).T    # Vectorized version
+#    post = np.exp(-post/(2*var))
     for i in range(n):  # Use single loop to complete Normal matrix: faster than broadcasting in 3D
         dist = X[i,:] - mu     # Compute difference: will be (K,d) for each n
         norm = np.sum(dist**2, axis=1)  # Norm: will be (K,) for each n
@@ -66,7 +68,7 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     mu = (post.T @ X)/nj.reshape(-1,1)  # Revised means; shape is (K,d)
     
     norms = np.zeros((n, K), dtype=np.float64)   # Matrix to hold all the norms: (n,K)
-    
+ #  norms = (np.linalg.norm(X[:, None] - mu, ord=2, axis=2)**2)    # Vectorized version
     for i in range(n):
         dist = X[i,:] - mu
         norms[i,:] = np.sum(dist**2, axis=1)
