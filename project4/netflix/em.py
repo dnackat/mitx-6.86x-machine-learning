@@ -80,10 +80,8 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     # Update means only when sum_u(p(j|u)*delta(l,Cu)) >= 1
     denom = post.T @ delta # Denominator (K,d): Only include dims that have information
     numer = post.T @ X  # Numerator (K,d)
-    mu_rev = numer/denom    
-    
-    # Only update means where denom >= 1
-    mu_rev[denom < 1] = mu_old[denom < 1]   # Revised means
+    mu_rev = mu_old     # Assign old mean to revised mean
+    mu_rev[denom >= 1] = numer[denom >= 1]/denom[denom >= 1] # Only update where necessary (denom>=1)
     
     # Update variances
     denom_var = np.sum(post*np.sum(delta, axis=1).reshape(-1,1), axis=0) # Shape: (K,)
