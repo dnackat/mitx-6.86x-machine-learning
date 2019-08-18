@@ -24,7 +24,6 @@ X = np.loadtxt("netflix_incomplete.txt")
 X_gold = np.loadtxt("netflix_complete.txt")
 
 K = [1, 12]    # Clusters to try
-seeds = [0, 1, 2, 3, 4]     # Seeds to try
 
 log_lh = [0, 0, 0, 0, 0]    # Log likelihoods for different seeds
 
@@ -40,26 +39,26 @@ posts = [0, 0, 0, 0, 0]
 # RMS Error for clusters
 rmse = [0., 0.]
 
-start_time = time.time()
+start_time = time.perf_counter()
 
 for k in range(len(K)):
-    for i in range(len(seeds)):
+    for i in range(5):
         
         # Run EM
         mixtures[i], posts[i], log_lh[i] = \
-        em.run(X, *common.init(X, K[k], seeds[i]))
+        em.run(X, *common.init(X, K[k], i))
     
     # Print lowest cost
     print("=============== Clusters:", K[k], "======================")
     print("Highest log likelihood using EM is:", np.max(log_lh))
     
-    # Save best seed for plotting
-    best_seed[k] = np.argmax(log_lh)
-    
-    # Use the best mixture to fill prediction matrix
-    X_pred = em.fill_matrix(X, mixtures[best_seed[k]])
-    rmse[k] = common.rmse(X_gold, X_pred)
+#    # Save best seed for plotting
+#    best_seed[k] = np.argmax(log_lh)
+#    
+#    # Use the best mixture to fill prediction matrix
+#    X_pred = em.fill_matrix(X, mixtures[best_seed[k]])
+#    rmse[k] = common.rmse(X_gold, X_pred)
 
-print("RMS Error for K = 12 is: {:.4f}".format(rmse[1]))
-end_time = time.time()
+#print("RMS Error for K = 12 is: {:.4f}".format(rmse[1]))
+end_time = time.perf_counter()
 print("Time taken for this run: {:.4f} seconds".format(end_time - start_time))
