@@ -15,6 +15,8 @@ mix_conv, post_conv, log_lh_conv = em.run(X, *common.init(X, K, seed))
 
 X_predict = em.fill_matrix(X, mix_conv)
 
+rmse = common.rmse(X_gold, X_predict)
+
 #%% Begin: Comparison of EM for matrix completion with K = 1 and 12
 import time
 
