@@ -21,14 +21,14 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     mu, var, pi = mixture  # Unpack mixture tuple
     K = mu.shape[0]
     
-#    post = np.zeros((n, K), dtype=np.float64)   # Array to hold posterior probs and normal matrix
-    
     # Compute normal dist. matrix: (N, K)
     pre_exp = (2*np.pi*var)**(d/2)
     
     # Calc exponent term: norm matrix/(2*variance)
     post = np.linalg.norm(X[:,None] - mu, ord=2, axis=2)**2   # Vectorized version
     post = np.exp(-post/(2*var))
+    
+#    post = np.zeros((n, K), dtype=np.float64) # For loop version: Array to hold posterior probs and normal matrix
 #    for i in range(n):  # Use single loop to complete Normal matrix: faster than broadcasting in 3D
 #        dist = X[i,:] - mu     # Compute difference: will be (K,d) for each n
 #        norm = np.sum(dist**2, axis=1)  # Norm: will be (K,) for each n
@@ -67,8 +67,9 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     
     mu = (post.T @ X)/nj.reshape(-1,1)  # Revised means; shape is (K,d)
     
-#    norms = np.zeros((n, K), dtype=np.float64)   # Matrix to hold all the norms: (n,K)
     norms = np.linalg.norm(X[:, None] - mu, ord=2, axis=2)**2    # Vectorized version
+
+#    norms = np.zeros((n, K), dtype=np.float64) # For loopy version: Matrix to hold all the norms: (n,K)
 #    for i in range(n):
 #        dist = X[i,:] - mu
 #        norms[i,:] = np.sum(dist**2, axis=1)
