@@ -94,7 +94,7 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
         Cu_indices = X[i,:] != 0
         diff = X[i, Cu_indices] - mu_rev[:, Cu_indices]    # This will be (K,|Cu|)
         norms[i,:] = np.sum(diff**2, axis=1)  # This will be (K,)
-        
+       
     var_rev = np.sum(post*norms, axis=0)/denom_var  
     var_rev = np.maximum(var_rev, min_variance) # Revised var: if var(j) < 0.25, set it = 0.25
     
