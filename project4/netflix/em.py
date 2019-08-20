@@ -20,9 +20,9 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     """
     n, d = X.shape
     mu, var, pi = mixture   # Unpack mixture tuple
-#    K = mu.shape[0]
+    K = mu.shape[0]
     
-    #### Loop version to calculate norms ####
+######## Loop version to calculate norms ########
     
     # f(u,j) matrix that's used to store the normal matrix and log of posterior probs: (p(j|u))
 #    f = np.zeros((n,K), dtype=np.float64)
@@ -43,20 +43,21 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
 #        # We will need log(normal), exp will cancel, so no need to calculate it
 #        f[i,:] = pre_exp - norm/(2*var)  # This is the ith users log gaussian dist vector: (K,)
     
-    #### End: loop version ####
+######## End: loop version ########
     
-    #### Vectorized version to calculate norms ####
+######## Vectorized version to calculate norms ########
     
     # Create a delta matrix to indicate where X is non-zero, which will help us pick Cu indices
     delta = X.astype(bool).astype(int)
     # Exponent term: norm matrix/(2*variance)
-    f = np.sum(((X[:, None, :] - mu)*delta[:, None, :])**2, axis=2)/(2*var) # This is (n, K)
+#    f = np.sum(((X[:, None, :] - mu)*delta[:, None, :])**2, axis=2)/(2*var) # This is (n, K)
+    f = (np.sum(X**2, axis=1)[:,None] + np.sum(mu**2, axis=1)) - 2*(X @ mu.T)
     # Pre-exponent term: A matrix of shape (n, K)
     pre_exp = (-np.sum(delta, axis=1).reshape(-1,1)/2.0) @ (np.log((2*np.pi*var)).reshape(-1,1)).T
     # Put them together
     f = pre_exp - f
     
-    #### End: vectorized version ####
+######## End: vectorized version ########
     
     f = f + np.log(pi + 1e-16)  # This is the f(u,j) matrix
     
@@ -85,8 +86,8 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
         GaussianMixture: the new gaussian mixture
     """
     n, d = X.shape
-    mu_old, _, _ = mixture
-#    K = mu_old.shape[0]
+    mu_rev, _, _ = mixture
+    K = mu_rev.shape[0]
     
     # Calculate revised pi(j): same expression as in the naive case
     pi_rev = np.sum(post, axis=0)/n
@@ -97,14 +98,13 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     # Update means only when sum_u(p(j|u)*delta(l,Cu)) >= 1
     denom = post.T @ delta # Denominator (K,d): Only include dims that have information
     numer = post.T @ X  # Numerator (K,d)
-    mu_rev = mu_old     # Assign old mean to revised mean
-    update_indices = np.where(denom >= 1)
+    update_indices = np.where(denom >= 1)   # Indices for update
     mu_rev[update_indices] = numer[update_indices]/denom[update_indices] # Only update where necessary (denom>=1)
     
     # Update variances
     denom_var = np.sum(post*np.sum(delta, axis=1).reshape(-1,1), axis=0) # Shape: (K,)
     
-    #### Loop version for norms calc. ####
+######## Loop version for norms calc. ##########
     
     # Norm matrix for variance calc
 #    norms = np.zeros((n, K), dtype=np.float64)
@@ -115,13 +115,14 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
 #        diff = X[i, Cu_indices] - mu_rev[:, Cu_indices]    # This will be (K,|Cu|)
 #        norms[i,:] = np.sum(diff**2, axis=1)  # This will be (K,)
     
-    #### End: loop version ####
+######## End: loop version #########
         
-    #### Vectorized version for norms calc. ####
+######## Vectorized version for norms calc. ########
     
-    norms = np.sum(((X[:, None, :] - mu_rev)*delta[:, None, :])**2, axis=2)
+#    norms = np.sum(((X[:, None, :] - mu_rev)*delta[:, None, :])**2, axis=2)
+    norms = (np.sum(X**2, axis=1)[:,None] + np.sum(mu_rev**2, axis=1)) - 2*(X @ mu_rev.T)
     
-    #### End: vectorized version ####
+######## End: vectorized version #########
     
     # Revised var: if var(j) < 0.25, set it = 0.25
     var_rev = np.maximum(np.sum(post*norms, axis=0)/denom_var, min_variance)  
