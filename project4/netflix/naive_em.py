@@ -57,8 +57,7 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    n = X.shape[0]
-    d = X.shape[1]
+    n, d = X.shape
     K = post.shape[1]
     
     nj = np.sum(post, axis=0)   # shape is (K, )
