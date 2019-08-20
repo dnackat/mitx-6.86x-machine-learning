@@ -21,7 +21,7 @@ rmse = common.rmse(X_gold, X_predict)
 import time
 
 X = np.loadtxt("netflix_incomplete.txt")
-X_gold = np.loadtxt("netflix_complete.txt")
+#X_gold = np.loadtxt("netflix_complete.txt")
 
 K = [1, 12]    # Clusters to try
 
