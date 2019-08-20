@@ -326,4 +326,4 @@ def grad_relative_error(alphas):
     
     return relative_error
 
-print("The relative error for gradient computation is:", grad_relative_error(alphas))
+#print("The relative error for gradient computation is:", grad_relative_error(alphas))

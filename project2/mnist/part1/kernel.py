@@ -48,21 +48,19 @@ def rbf_kernel(X, Y, gamma):
     # Naive version with for loops   
     kernel_matrix = np.zeros((n,m))
     
-    # Double for loops 
-#    for i in range(n):
-#        for j in range(m):
-#            kernel_matrix[i,j] = np.exp(-gamma*(np.linalg.norm(X[i,:] - Y[j,:])**2))
-    
-    # Single for loop
+#### Single for loop ####
     for i in range(n):
         d = X[i,:] - Y  # Using numpy broadcasting to get differences
         b = np.sum(d**2, axis=1)
         kernel_matrix[i,:] = np.exp(-gamma*b)
+#### End: single-loop version ####
 
-    # Vectorized version (runs slower than the single loop version)
+#### Vectorized version (runs slower than the single loop version) ####
 #    kernel_matrix = np.linalg.norm((X[:,None] - Y), ord=2, axis=2)**2
-#   
+#    kernel_matrix = (np.sum(X**2, axis=1)[:,None] + np.sum(Y**2, axis=1)) - 2*(X @ Y.T)
+   
 #    kernel_matrix = np.exp(-gamma*kernel_matrix)
+#### End: vectorized version ####
     
     return kernel_matrix
 # pragma: coderesponse end
