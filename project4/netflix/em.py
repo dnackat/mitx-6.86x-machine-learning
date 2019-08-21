@@ -51,7 +51,7 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     delta = X.astype(bool).astype(int)
     # Exponent term: norm matrix/(2*variance)
 #    f = np.sum(((X[:, None, :] - mu)*delta[:, None, :])**2, axis=2)/(2*var) # This is (n, K)
-    f = (np.sum(X**2, axis=1)[:,None] + np.sum(mu**2, axis=1)) - 2*(X @ mu.T)
+    f = (np.sum(X**2, axis=1)[:,None] + (delta @ mu.T**2) - 2*(X @ mu.T))/(2*var)
     # Pre-exponent term: A matrix of shape (n, K)
     pre_exp = (-np.sum(delta, axis=1).reshape(-1,1)/2.0) @ (np.log((2*np.pi*var)).reshape(-1,1)).T
     # Put them together
@@ -63,7 +63,7 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     
     # log of normalizing term in p(j|u)
     logsums = logsumexp(f, axis=1).reshape(-1,1)  # Store this to calculate log_lh
-    log_posts = f -  logsums # This is the log of posterior prob. matrix: log(p(j|u))
+    log_posts = f - logsums # This is the log of posterior prob. matrix: log(p(j|u))
     
     log_lh = np.sum(logsums, axis=0).item()   # This is the log likelihood
     
@@ -120,7 +120,7 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
 ######## Vectorized version for norms calc. ########
     
 #    norms = np.sum(((X[:, None, :] - mu_rev)*delta[:, None, :])**2, axis=2)
-    norms = (np.sum(X**2, axis=1)[:,None] + np.sum(mu_rev**2, axis=1)) - 2*(X @ mu_rev.T)
+    norms = (np.sum(X**2, axis=1)[:,None] + (delta @ mu_rev.T**2) - 2*(X @ mu_rev.T))
     
 ######## End: vectorized version #########
     
