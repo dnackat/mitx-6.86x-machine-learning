@@ -120,7 +120,7 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
 ######## Vectorized version for norms calc. ########
     
 #    norms = np.sum(((X[:, None, :] - mu_rev)*delta[:, None, :])**2, axis=2)
-    norms = (np.sum(X**2, axis=1)[:,None] + (delta @ mu_rev.T**2) - 2*(X @ mu_rev.T))
+    norms = np.sum(X**2, axis=1)[:,None] + (delta @ mu_rev.T**2) - 2*(X @ mu_rev.T)
     
 ######## End: vectorized version #########
     
