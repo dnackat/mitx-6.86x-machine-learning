@@ -22,7 +22,7 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     mu, var, pi = mixture   # Unpack mixture tuple
     K = mu.shape[0]
     
-######## Loop version to calculate norms ########
+######## Loop version to calculate norms: 2nd fastest ########
     
     # f(u,j) matrix that's used to store the normal matrix and log of posterior probs: (p(j|u))
 #    f = np.zeros((n,K), dtype=np.float64)
@@ -50,8 +50,8 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     # Create a delta matrix to indicate where X is non-zero, which will help us pick Cu indices
     delta = X.astype(bool).astype(int)
     # Exponent term: norm matrix/(2*variance)
-#    f = np.sum(((X[:, None, :] - mu)*delta[:, None, :])**2, axis=2)/(2*var) # This is (n, K)
-    f = (np.sum(X**2, axis=1)[:,None] + (delta @ mu.T**2) - 2*(X @ mu.T))/(2*var)
+#    f = np.sum(((X[:, None, :] - mu)*delta[:, None, :])**2, axis=2)/(2*var) # This is using 3D broadcasting: slowest of all
+    f = (np.sum(X**2, axis=1)[:,None] + (delta @ mu.T**2) - 2*(X @ mu.T))/(2*var) # This is using indicator matrix: fastest of all
     # Pre-exponent term: A matrix of shape (n, K)
     pre_exp = (-np.sum(delta, axis=1).reshape(-1,1)/2.0) @ (np.log((2*np.pi*var)).reshape(-1,1)).T
     # Put them together
