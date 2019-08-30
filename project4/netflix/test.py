@@ -59,6 +59,7 @@ for k in range(len(K)):
 #    X_pred = em.fill_matrix(X, mixtures[best_seed[k]])
 #    rmse[k] = common.rmse(X_gold, X_pred)
 
+print("===================================================")
 #print("RMS Error for K = 12 is: {:.4f}".format(rmse[1]))
 end_time = time.perf_counter()
 print("Time taken for this run: {:.4f} seconds".format(end_time - start_time))
