@@ -14,7 +14,7 @@ NUM_RUNS = 10
 NUM_EPOCHS = 200
 NUM_EPIS_TRAIN = 25  # number of episodes for training at each epoch
 NUM_EPIS_TEST = 50  # number of episodes for testing
-ALPHA = 0.1  # learning rate for training
+ALPHA = 1  # learning rate for training
 
 ACTIONS = framework.get_actions()
 OBJECTS = framework.get_objects()
