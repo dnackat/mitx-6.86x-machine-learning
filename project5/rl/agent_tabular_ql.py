@@ -36,8 +36,8 @@ def epsilon_greedy(state_1, state_2, q_func, epsilon):
     """
     if np.random.binomial(1, epsilon):
         # Randomly choose action and object
-        action_index, object_index = np.random.randint(0, NUM_ACTIONS, size=1), \
-                                    np.random.randint(0, NUM_OBJECTS, size=1)
+        action_index, object_index = np.random.randint(NUM_ACTIONS, size=1), \
+                                    np.random.randint(NUM_OBJECTS, size=1)
     else:
         # Choose the best action and object
         action_index, object_index = np.unravel_index(np.argmax(q_func[
