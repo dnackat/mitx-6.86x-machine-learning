@@ -14,7 +14,7 @@ NUM_RUNS = 10
 NUM_EPOCHS = 200
 NUM_EPIS_TRAIN = 25  # number of episodes for training at each epoch
 NUM_EPIS_TEST = 50  # number of episodes for testing
-ALPHA = 1  # learning rate for training
+ALPHA = 0.1  # learning rate for training
 
 ACTIONS = framework.get_actions()
 OBJECTS = framework.get_objects()
@@ -34,6 +34,7 @@ def epsilon_greedy(state_1, state_2, q_func, epsilon):
     Returns:
         (int, int): the indices describing the action/object to take
     """
+    # Toss a coin to decide what to do
     if np.random.binomial(1, epsilon):
         # Randomly choose action and object
         action_index, object_index = np.random.randint(NUM_ACTIONS, size=1), \

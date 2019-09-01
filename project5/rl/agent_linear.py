@@ -11,11 +11,11 @@ DEBUG = False
 GAMMA = 0.5  # discounted factor
 TRAINING_EP = 0.5  # epsilon-greedy parameter for training
 TESTING_EP = 0.05  # epsilon-greedy parameter for testing
-NUM_RUNS = 10
+NUM_RUNS = 5
 NUM_EPOCHS = 600
 NUM_EPIS_TRAIN = 25  # number of episodes for training at each epoch
 NUM_EPIS_TEST = 50  # number of episodes for testing
-ALPHA = 0.001  # learning rate for training
+ALPHA = 0.001 * 10 # learning rate for training
 
 ACTIONS = framework.get_actions()
 OBJECTS = framework.get_objects()
@@ -45,9 +45,17 @@ def epsilon_greedy(state_vector, theta, epsilon):
     Returns:
         (int, int): the indices describing the action/object to take
     """
-    # TODO Your code here
-    action_index, object_index = None, None
-    return (action_index, object_index)
+    # Toss a coin to decide what to do
+    if np.random.binomial(1, epsilon):
+        # Randomly choose action and object
+        action_index, object_index = np.random.randint(NUM_ACTIONS, size=1), \
+                                    np.random.randint(NUM_OBJECTS, size=1)
+    else:
+        # Choose the best action and object
+        action_index, object_index = np.unravel_index(np.argmax(theta @ state_vector),
+                                                      (NUM_ACTIONS, NUM_OBJECTS))
+        
+    return (int(action_index), int(object_index))
 # pragma: coderesponse end
 
 
@@ -68,8 +76,22 @@ def linear_q_learning(theta, current_state_vector, action_index, object_index,
     Returns:
         None
     """
-    # TODO Your code here
-    theta = None # TODO Your update here
+    # If terminal step Q(s', c', theta) = 0
+    if terminal:
+        maxQ = 0.0
+    else:
+        maxQ = np.max(theta @ next_state_vector)
+    
+    # Q(s, c, theta) for current command, c
+    Q_val = (theta @ current_state_vector)[tuple2index(action_index, object_index)]
+    
+    # y = R(s, c) + gamma*maxQ
+    y = reward + GAMMA*maxQ
+    
+    theta[tuple2index(action_index, object_index)] = \
+        theta[tuple2index(action_index, object_index)] + \
+        ALPHA*(y - Q_val)*current_state_vector
+
 # pragma: coderesponse end
 
 
@@ -85,31 +107,44 @@ def run_episode(for_training):
         None
     """
     epsilon = TRAINING_EP if for_training else TESTING_EP
-    epi_reward = None
+    epi_reward = 0.0
 
     # initialize for each episode
     # TODO Your code here
 
     (current_room_desc, current_quest_desc, terminal) = framework.newGame()
+    t = 0
     while not terminal:
         # Choose next action and execute
         current_state = current_room_desc + current_quest_desc
         current_state_vector = utils.extract_bow_feature_vector(
             current_state, dictionary)
         # TODO Your code here
+        next_action_index, next_object_index = epsilon_greedy(current_state_vector, 
+                                                              theta, 
+                                                              epsilon) # Get next action, object
+        
+        next_room_desc, next_quest_desc, reward, terminal = framework.step_game(
+                                                            current_room_desc,
+                                                            current_quest_desc,
+                                                            next_action_index,
+                                                            next_object_index) # Take a step
+        
+        next_state = next_room_desc + next_quest_desc   # Build next state vector
+        next_state_vector = utils.extract_bow_feature_vector(next_state, dictionary)      
 
         if for_training:
             # update Q-function.
-            # TODO Your code here
-            pass
+            linear_q_learning(theta, current_state_vector, next_action_index, 
+                          next_object_index, reward, next_state_vector, terminal) # Update theta
 
         if not for_training:
             # update reward
-            # TODO Your code here
-            pass
+            epi_reward += (GAMMA**t)*reward
 
         # prepare next step
-        # TODO Your code here
+        current_room_desc, current_quest_desc = next_room_desc, next_quest_desc
+        t += 1
 
     if not for_training:
         return epi_reward
