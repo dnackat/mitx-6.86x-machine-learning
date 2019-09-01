@@ -90,11 +90,13 @@ def deep_q_learning(current_state_vector, action_index, object_index, reward,
                          + q_values_object_next.max())
 
     q_value_cur_state = model(current_state_vector)
+    Q_val_cur = 1/2 * (q_value_cur_state[0][action_index] + \
+                    q_value_cur_state[1][object_index]) # Current Q value 
 
     maxQ = 0.0 if terminal else maxq_next
-    y = reward + GAMMA*maxQ
+    y = reward + GAMMA*maxQ # Target
 
-    loss = 1/2 * (y - q_value_cur_state)**2
+    loss = 1/2 * (y - Q_val_cur)**2
 
     optimizer.zero_grad()
     loss.backward()
@@ -135,16 +137,15 @@ def run_episode(for_training):
 
         if for_training:
             # update Q-function.
-            # TODO Your code here
-            pass
+            deep_q_learning(current_state_vector, next_action_index, 
+                            next_object_index, reward, next_state_vector, terminal) # Update weights
 
         if not for_training:
             # update reward
-            # TODO Your code here
-            pass
-
+            epi_reward += (GAMMA**(framework.STEP_COUNT - 1))*reward
+            
         # prepare next step
-        # TODO Your code here
+        current_room_desc, current_quest_desc = next_room_desc, next_quest_desc
 
     if not for_training:
         return epi_reward
