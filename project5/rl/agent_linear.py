@@ -107,19 +107,17 @@ def run_episode(for_training):
         None
     """
     epsilon = TRAINING_EP if for_training else TESTING_EP
-    epi_reward = 0.0
-
-    # initialize for each episode
-    # TODO Your code here
+    
+    epi_reward = 0.0 # initialize for each episode
 
     (current_room_desc, current_quest_desc, terminal) = framework.newGame()
-    t = 0
+
     while not terminal:
         # Choose next action and execute
         current_state = current_room_desc + current_quest_desc
         current_state_vector = utils.extract_bow_feature_vector(
             current_state, dictionary)
-        # TODO Your code here
+
         next_action_index, next_object_index = epsilon_greedy(current_state_vector, 
                                                               theta, 
                                                               epsilon) # Get next action, object
@@ -140,11 +138,10 @@ def run_episode(for_training):
 
         if not for_training:
             # update reward
-            epi_reward += (GAMMA**t)*reward
+            epi_reward += (GAMMA**(framework.STEP_COUNT - 1))*reward
 
         # prepare next step
         current_room_desc, current_quest_desc = next_room_desc, next_quest_desc
-        t += 1
 
     if not for_training:
         return epi_reward
