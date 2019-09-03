@@ -74,10 +74,8 @@ def load_data():
             
             # Define X, y, and m
             X = dataset[:, :F]
-            y = dataset[:, F]
-            # Convert y to rank 2 array
-            y = y[:, np.newaxis]
-            
+            y = dataset[:, F].reshape(-1,1)
+
             break
             
         elif input_type == "2":
@@ -106,11 +104,10 @@ def load_data():
 # Load data
 X_train, y_train, X_test = load_data()
 
-# Split the data into train and cross-validation sets
-#X_train, X_cv, y_train, y_cv = sklearn.model_selection.train_test_split(X, y)
-
 # Fit the model
-model = sklearn.linear_model.LinearRegression() #SGDRegressor(max_iter=10000)
+model = sklearn.linear_model.LinearRegression()
+
+#%% Linear regression
 model.fit(X_train, y_train)
 
 # Make predictions
@@ -121,3 +118,13 @@ y_test = np.array([105.22, 142.68, 132.94, 129.71])
 mse = sklearn.metrics.regression.mean_squared_error(y_test, y_pred)
 
 print("MSE = {:.2f}".format(mse))
+
+#%% Now with polynomial features
+poly = sklearn.preprocessing.PolynomialFeatures(degree = 3)
+X_poly = poly.fit_transform(X_train)
+X_test_poly = poly.fit_transform(X_test)
+model.fit(X_poly, y_train)
+y_pred_poly = model.predict(X_test_poly)
+
+for i in range(len(y_pred_poly)):
+    print("{:.2f}".format(y_pred_poly[i].item()))
