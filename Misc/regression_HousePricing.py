@@ -4,12 +4,14 @@
 Created on Tue Sep  3 18:44:03 2019
 
 @author: dileepn
+
+Using ScikitLearn for multiple linear regression in order to predict house prices  
 """
 import numpy as np
 import sklearn
 import matplotlib.pyplot as plt
 
-#%% Open the dataset and define X, y, and m
+# Open the dataset and define X, y, and m
 def load_data():
     """ This function loads: 
         1. Space-separated text (*.txt) file using numpy
@@ -84,11 +86,11 @@ def load_data():
             F, N = map(int, input().split())
             
             # Get the training set (X and y)
-            train = np.array([input().split() for _ in range(N)], float)
+            train = np.array([input().split() for _ in range(N)], dtype=np.float64)
             
             # Number of test examples
             T = int(input())
-            X_pred = np.array([input().split() for _ in range(T)], float)
+            X_pred = np.array([input().split() for _ in range(T)], dtype=np.float64)
             
             # Split the training set into X and y
             X = train[:,:F]
@@ -102,9 +104,20 @@ def load_data():
     return (X, y, X_pred)
 
 # Load data
-X, y, X_pred = load_data()
+X_train, y_train, X_test = load_data()
 
 # Split the data into train and cross-validation sets
-X_train, X_cv, y_train, y_cv = sklearn.model_selection.train_test_split(X, y)
+#X_train, X_cv, y_train, y_cv = sklearn.model_selection.train_test_split(X, y)
 
-# Fit the model and predict; use CV set to tune hyperparams.
+# Fit the model
+model = sklearn.linear_model.LinearRegression() #SGDRegressor(max_iter=10000)
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Error metrics
+y_test = np.array([105.22, 142.68, 132.94, 129.71])
+mse = sklearn.metrics.regression.mean_squared_error(y_test, y_pred)
+
+print("MSE = {:.2f}".format(mse))
