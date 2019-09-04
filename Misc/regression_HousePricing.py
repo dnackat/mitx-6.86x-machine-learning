@@ -8,7 +8,9 @@ Created on Tue Sep  3 18:44:03 2019
 Using ScikitLearn for multiple linear regression in order to predict house prices  
 """
 import numpy as np
-import sklearn
+from sklearn import linear_model
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics.regression import mean_squared_error 
 import matplotlib.pyplot as plt
 
 # Open the dataset and define X, y, and m
@@ -105,7 +107,7 @@ def load_data():
 X_train, y_train, X_test = load_data()
 
 # Fit the model
-model = sklearn.linear_model.LinearRegression()
+model = linear_model.LinearRegression()
 
 #%% Linear regression
 model.fit(X_train, y_train)
@@ -115,12 +117,12 @@ y_pred = model.predict(X_test)
 
 # Error metrics
 y_test = np.array([105.22, 142.68, 132.94, 129.71])
-mse = sklearn.metrics.regression.mean_squared_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
 
 print("MSE = {:.2f}".format(mse))
 
 #%% Now with polynomial features
-poly = sklearn.preprocessing.PolynomialFeatures(degree = 3)
+poly = PolynomialFeatures(degree = 3)
 X_poly = poly.fit_transform(X_train)
 X_test_poly = poly.fit_transform(X_test)
 model.fit(X_poly, y_train)
