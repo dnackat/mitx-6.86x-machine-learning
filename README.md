@@ -5,4 +5,4 @@
 __Note__: _This repo also includes code written by the course staff._    
 
 
-__Status__: _Ongoing_
+__Status__: _Completed_
